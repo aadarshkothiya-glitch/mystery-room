@@ -12,8 +12,8 @@
   <style>
     :root {
       --bg-dark: #071427;
-      --panel-bg: rgba(13, 30, 58, 0.75);
-      --panel-border: rgba(31, 107, 255, 0.25);
+      --panel-bg: rgba(13, 30, 58, 0.85);
+      --panel-border: rgba(31, 107, 255, 0.3);
       --primary-blue: #1F6BFF;
       --cyan-glow: #00F0FF;
       --gold-glow: #FFD54A;
@@ -25,17 +25,17 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 12px; }
     .glow-orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
-    .orb-1 { width: 300px; height: 300px; background: rgba(31, 107, 255, 0.2); top: -50px; left: -50px; }
-    .orb-2 { width: 300px; height: 300px; background: rgba(0, 240, 255, 0.12); bottom: 0; right: -50px; }
+    .orb-1 { width: 250px; height: 250px; background: rgba(31, 107, 255, 0.2); top: -40px; left: -40px; }
+    .orb-2 { width: 250px; height: 250px; background: rgba(0, 240, 255, 0.12); bottom: 0; right: -40px; }
 
-    .app-container { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
+    .app-container { max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
     .glass-panel, .glass-card {
       background: var(--panel-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 14px;
     }
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
@@ -48,15 +48,15 @@
     .screen.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    .hero-card { text-align: center; padding: 30px 16px; margin-top: 15px; }
+    .hero-card { text-align: center; padding: 28px 16px; margin-top: 10px; }
     .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
     .headline { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
-    .subtext { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+    .subtext { color: var(--text-dim); font-size: 13px; margin-bottom: 22px; }
 
     input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
-      background: rgba(5, 15, 30, 0.85);
+      padding: 13px 14px;
+      background: rgba(5, 15, 30, 0.9);
       border: 1px solid var(--panel-border);
       border-radius: 10px;
       color: #fff;
@@ -86,7 +86,7 @@
     .challenge-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .challenge-prompt { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
     .gyani-hints { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,213,74,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; }
-    .gyani-hints summary { font-weight: 700; color: var(--gold-glow); }
+    .gyani-hints summary { font-weight: 700; color: var(--gold-glow); cursor: pointer; }
 
     .block-palette { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin: 10px 0; }
     .palette-chip { background: rgba(13,30,58,0.9); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
@@ -99,7 +99,22 @@
     .block-input-title { width: 100%; background: transparent; border: none; font-size: 13px; font-weight: 700; color: #fff; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 2px; margin-bottom: 6px; }
     .block-textarea { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; color: #fff; font-size: 12px; min-height: 48px; outline: none; }
 
-    .modal-overlay { position: fixed; inset: 0; background: rgba(7, 20, 39, 0.95); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; text-align: center; }
+    /* OVERLAY FIX: By-default display: none rahega */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 20, 39, 0.96);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+      text-align: center;
+    }
+    .modal-overlay.active {
+      display: flex !important;
+    }
+
     .honorary-badge { display: inline-block; background: rgba(255, 213, 74, 0.15); color: var(--gold-glow); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
     .score-bar-row { display: flex; align-items: center; font-size: 11px; gap: 8px; margin-top: 4px; }
     .score-bar-label { width: 85px; color: var(--text-dim); }
@@ -192,8 +207,8 @@
       </section>
     </main>
 
-    <!-- 4. JUDGING OVERLAY -->
-    <div id="judgingOverlay" class="screen modal-overlay">
+    <!-- 4. JUDGING OVERLAY (Ab theek se chhipa rahega jab tak sab submit na karein) -->
+    <div id="judgingOverlay" class="modal-overlay">
       <div class="glass-card" style="max-width:320px;">
         <h2 style="color:var(--gold-glow);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
         <p style="font-size:12px;color:var(--text-dim);">Serverless engine solutions ka logic, practicality aur originality evaluate kar raha hai...</p>
@@ -329,4 +344,166 @@
       if (msg.type === 'START') { roomState = msg.roomState; startRoundUI(msg.ch, msg.round); }
       if (msg.type === 'TICK') { updateTimer(msg.t); }
       if (msg.type === 'SUB_COUNT') { $('submissionCounter').innerText = `${msg.count}/${msg.total} Done`; }
-      if (msg.type === 'JUDGING') { $('judgingOverlay').classList.a
+      if (msg.type === 'JUDGING') { $('judgingOverlay').classList.add('active'); }
+      if (msg.type === 'RESULTS') { $('judgingOverlay').classList.remove('active'); showResults(msg.results, msg.round, msg.isFinal); }
+      if (msg.type === 'OVER') { showGameOver(msg.winner, msg.lb); }
+    }
+
+    $('readyToggleBtn').onclick = () => { if (!isHost && hostConn) hostConn.send({ type: 'READY', id: myPlayerId }); };$('startGameBtn').onclick = () => {
+      if (!isHost) return;
+      if (roomState.players.length < 2) return alert('Kam se kam 2 players chahiye!');
+      hostStartRound();
+    };
+
+    function updateLobby() {
+      $('roomBadge').classList.remove('hidden');$('displayRoomCode').innerText = roomState.code;
+      $('playersList').innerHTML = roomState.players.map(p => `
+        <div class="player-chip ${p.isReady ? 'is-ready' : ''}">
+          <span>${p.id === roomState.hostId ? '👑 ' : ''}${p.username} ${p.id === myPlayerId ? '(You)' : ''}</span>
+          <span class="ready-status ${p.isReady ? 'ready' : 'waiting'}">${p.isReady ? 'READY' : 'WAITING'}</span>
+        </div>
+      `).join('');
+      $('startGameBtn').classList.toggle('hidden', !isHost);$('readyToggleBtn').classList.toggle('hidden', isHost);
+    }
+
+    function hostStartRound() {
+      roomState.currentRound++;
+      roomState.submissions = {};
+      const ch = CHALLENGES_DB[(roomState.currentRound - 1) % CHALLENGES_DB.length];
+      roomState.timeLeft = 180;
+      broadcast({ type: 'START', roomState, ch, round: roomState.currentRound });
+      startRoundUI(ch, roomState.currentRound);
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        roomState.timeLeft--;
+        broadcast({ type: 'TICK', t: roomState.timeLeft });
+        updateTimer(roomState.timeLeft);
+        if (roomState.timeLeft <= 0) { clearInterval(timerInterval); runJudge(); }
+      }, 1000);
+    }
+
+    function startRoundUI(ch, round) {
+      switchScreen($('gameScreen'));$('currentRoundDisplay').innerText = round;
+      $('challengeCategory').innerText = ch.category;
+      $('challengeTitle').innerText = ch.title;
+      $('challengePrompt').innerText = ch.prompt;
+      $('submissionCounter').innerText = `0/${roomState.players.length} Done`;
+      $('submitSolutionBtn').disabled = false;
+      $('submitSolutionBtn').innerText = '🔒 LOCK & SUBMIT SOLUTION';
+      localBlocks = [{ type: 'Idea', title: 'Core Strategy', c: '' }, { type: 'Action', title: 'Action Plan', c: '' }];
+      renderCanvas();
+    }
+
+    function updateTimer(t) {
+      const m = Math.floor(t / 60).toString().padStart(2, '0');
+      const s = (t % 60).toString().padStart(2, '0');
+      $('timerDisplay').innerText = `${m}:${s}`;
+    }
+
+    $('blockPalette').onclick = e => {
+      const btn = e.target.closest('.palette-chip');
+      if (!btn) return;
+      localBlocks.push({ type: btn.dataset.type, title: btn.dataset.type + ' Details', c: '' });
+      renderCanvas();
+    };
+
+    function renderCanvas() {
+      $('canvasBlocks').innerHTML = localBlocks.map((b, i) => `
+        <div class="strategy-block">
+          <div class="block-top-row">
+            <span class="block-type-tag">${b.type}</span>
+            <div><button class="block-btn delete" onclick="localBlocks.splice(${i},1);renderCanvas();">✕</button></div>
+          </div>
+          <input class="block-input-title" value="${b.title}" oninput="localBlocks[${i}].title=this.value">
+          <textarea class="block-textarea" placeholder="Apna plan likhein..." oninput="localBlocks[${i}].c=this.value">${b.c}</textarea>
+        </div>
+      `).join('');
+    }
+
+    $('submitSolutionBtn').onclick = () => {$('submitSolutionBtn').disabled = true;
+      $('submitSolutionBtn').innerText = '✅ LOCKED! WAITING...';
+      if (isHost) {
+        roomState.submissions[myPlayerId] = { id: myPlayerId, username: myUsername, blocks: localBlocks };
+        const count = Object.keys(roomState.submissions).length;
+        broadcast({ type: 'SUB_COUNT', count, total: roomState.players.length });
+        $('submissionCounter').innerText = `${count}/${roomState.players.length} Done`;
+        if (count >= roomState.players.length) { clearInterval(timerInterval); runJudge(); }
+      } else {
+        hostConn.send({ type: 'SUBMIT', id: myPlayerId, username: myUsername, blocks: localBlocks });
+      }
+    };
+
+    function runJudge() {
+      broadcast({ type: 'JUDGING' });
+      $('judgingOverlay').classList.add('active');
+      setTimeout(() => {
+        const results = roomState.players.map(p => {
+          const sub = roomState.submissions[p.id] || { blocks: [] };
+          const txt = sub.blocks.map(b => b.c).join(' ');
+          let sc = 65 + Math.min(25, txt.length > 30 ? 20 : 10) + Math.floor(Math.random() * 10);
+          p.totalScore += sc;
+          let title = sc >= 88 ? '🧠 Dimaag Ka Don' : (sc >= 80 ? '💡 Idea Baaz' : '⚙️ Jugaad Architect');
+          return { id: p.id, username: p.username, score: sc, title, total: p.totalScore };
+        });
+        results.sort((a,b) => b.score - a.score);
+        const isFinal = roomState.currentRound >= roomState.totalRounds;
+        broadcast({ type: 'RESULTS', results, round: roomState.currentRound, isFinal });
+        $('judgingOverlay').classList.remove('active');
+        showResults(results, roomState.currentRound, isFinal);
+      }, 2000);
+    }
+
+    function showResults(results, round, isFinal) {
+      switchScreen($('roundResultsScreen'));$('resultsRoundBadge').innerText = `Round ${round} of ${roomState.totalRounds}`;
+      const me = results.find(r => r.id === myPlayerId) || results[0];
+      $('myHonoraryTitle').innerText = me.title;
+      $('myTotalRoundScore').innerText = `Score: ${me.score} / 100`;
+      $('scoreBarsGrid').innerHTML = `
+        <div class="score-bar-row"><span class="score-bar-label">Creativity</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${me.score}%"></div></div><span>${Math.round(me.score/5)}/20</span></div>
+        <div class="score-bar-row"><span class="score-bar-label">Practicality</span><div class="score-bar-track"><div class="score-bar-fill" style="width:85%"></div></div><span>17/20</span></div>
+        <div class="score-bar-row"><span class="score-bar-label">Logic</span><div class="score-bar-track"><div class="score-bar-fill" style="width:90%"></div></div><span>18/20</span></div>
+      `;
+      $('roundLeaderboardList').innerHTML = results.map((r, i) => `
+        <div class="lb-row ${i === 0 ? 'top-1' : ''}">
+          <span>${i === 0 ? '🥇' : '#' + (i + 1)} <b>${r.username}</b> <small>(${r.title})</small></span>
+          <b>+${r.score} pts</b>
+        </div>
+      `).join('');
+
+      $('nextRoundBtn').classList.toggle('hidden', !isHost);
+      $('waitingHostNotice').classList.toggle('hidden', isHost);$('nextRoundBtn').innerText = isFinal ? '🏆 VIEW WINNER' : 'NEXT ROUND ➔';
+      $('nextRoundBtn').onclick = () => {
+        if (isFinal) {
+          const lb = [...roomState.players].sort((a,b) => b.totalScore - a.totalScore);
+          broadcast({ type: 'OVER', winner: lb[0], lb });
+          showGameOver(lb[0], lb);
+        } else {
+          hostStartRound();
+        }
+      };
+    }
+
+    function showGameOver(winner, lb) {
+      switchScreen($('gameOverScreen'));$('winnerName').innerText = winner.username;
+      $('winnerFinalScore').innerText = `${winner.totalScore} / ${roomState.totalRounds * 100} PTS`;
+      $('finalLeaderboardList').innerHTML = lb.map((p, i) => `
+        <div class="lb-row ${i === 0 ? 'top-1' : ''}">
+          <span>${i === 0 ? '👑' : '#' + (i + 1)} <b>${p.username}</b></span>
+          <b>${p.totalScore} Total PTS</b>
+        </div>
+      `).join('');
+    }
+
+    $('copyCodeBtn').onclick = () => { navigator.clipboard.writeText(roomCode); alert('Room Code copied: ' + roomCode); };$('shareLinkBtn').onclick = () => {
+      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
+      prompt('Yeh link apne doston ko bhejein:', url);
+    };
+
+    window.onload = () => {
+      const r = new URLSearchParams(window.location.search).get('room');
+      if (r) $('joinCodeInput').value = r.replace('MR-', '');
+    };
+  </script>
+</body>
+</html>
