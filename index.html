@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MYSTERY ROOM 1 — PRABAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-dark: #071427;
+      --panel-bg: rgba(13, 30, 58, 0.75);
+      --panel-border: rgba(31, 107, 255, 0.25);
+      --primary-blue: #1F6BFF;
+      --cyan-glow: #00F0FF;
+      --gold-glow: #FFD54A;
+      --text-main: #FFFFFF;
+      --text-dim: #9EB1D4;
+      --success: #10B981;
+      --danger: #EF4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 12px; }
+    .glow-orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
+    .orb-1 { width: 300px; height: 300px; background: rgba(31, 107, 255, 0.2); top: -50px; left: -50px; }
+    .orb-2 { width: 300px; height: 300px; background: rgba(0, 240, 255, 0.12); bottom: 0; right: -50px; }
+
+    .app-container { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
+    .glass-panel, .glass-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
+    .brand-badge { background: linear-gradient(135deg, var(--primary-blue), #00c3ff); font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+    .brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-left: 6px; }
+    .room-badge { background: rgba(0, 0, 0, 0.4); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .room-badge b { color: var(--cyan-glow); font-family: monospace; font-size: 14px; }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero-card { text-align: center; padding: 30px 16px; margin-top: 15px; }
+    .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .headline { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
+    .subtext { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(5, 15, 30, 0.85);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    input[type="text"]:focus { border-color: var(--primary-blue); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary-blue), #1855ca); color: #fff; margin-bottom: 8px; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-gold { background: linear-gradient(135deg, #FFD54A, #e6a817); color: #071427; font-weight: 800; }
+    .btn-large { padding: 15px; font-size: 15px; margin-top: 12px; }
+
+    .players-grid { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+    .player-chip { display: flex; justify-content: space-between; align-items: center; background: rgba(13, 30, 58, 0.9); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+    .player-chip.is-ready { border-color: rgba(16, 185, 129, 0.5); }
+    .ready-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+    .ready-status.ready { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .ready-status.waiting { background: rgba(255, 255, 255, 0.08); color: var(--text-dim); }
+
+    .game-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 12px; font-weight: 700; }
+    .timer-box { font-family: monospace; font-size: 16px; color: var(--gold-glow); background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; }
+
+    .challenge-category { font-size: 10px; font-weight: 800; color: var(--cyan-glow); text-transform: uppercase; margin-bottom: 4px; }
+    .challenge-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .challenge-prompt { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+    .gyani-hints { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,213,74,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    .gyani-hints summary { font-weight: 700; color: var(--gold-glow); }
+
+    .block-palette { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin: 10px 0; }
+    .palette-chip { background: rgba(13,30,58,0.9); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+
+    .strategy-block { background: rgba(9, 21, 41, 0.95); border-left: 3px solid var(--primary-blue); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+    .block-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .block-type-tag { font-size: 11px; font-weight: 700; color: var(--cyan-glow); }
+    .block-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; }
+    .block-btn.delete { color: var(--danger); }
+    .block-input-title { width: 100%; background: transparent; border: none; font-size: 13px; font-weight: 700; color: #fff; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 2px; margin-bottom: 6px; }
+    .block-textarea { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; color: #fff; font-size: 12px; min-height: 48px; outline: none; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(7, 20, 39, 0.95); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; text-align: center; }
+    .honorary-badge { display: inline-block; background: rgba(255, 213, 74, 0.15); color: var(--gold-glow); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
+    .score-bar-row { display: flex; align-items: center; font-size: 11px; gap: 8px; margin-top: 4px; }
+    .score-bar-label { width: 85px; color: var(--text-dim); }
+    .score-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+    .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-blue), var(--cyan-glow)); }
+    .lb-row { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 13px; margin-bottom: 6px; }
+    .lb-row.top-1 { border: 1px solid rgba(255,213,74,0.3); background: rgba(255,213,74,0.1); font-weight: 700; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+
+  <div class="app-container">
+    <header class="navbar glass-panel">
+      <div>
+        <span class="brand-badge">PRABAL</span>
+        <span class="brand-title">MYSTERY ROOM <span style="color:var(--gold-glow)">1</span></span>
+      </div>
+      <div id="roomBadge" class="room-badge hidden">
+        <span>ROOM</span>
+        <b id="displayRoomCode">MR-0000</b>
+        <button id="copyCodeBtn" style="background:none;border:none;color:#fff;cursor:pointer;">📋</button>
+      </div>
+    </header>
+
+    <!-- 1. ENTRY SCREEN -->
+    <main id="authScreen" class="screen active">
+      <div class="hero-card glass-card">
+        <div class="tagline">"Think Different. Solve Better."</div>
+        <h1 class="headline">Multiplayer Creative Problem Solving</h1>
+        <p class="subtext">Real-world crises. Unlimited strategy. Serverless multiplayer.</p>
+        
+        <input type="text" id="usernameInput" placeholder="Apna Codename Likhein" maxlength="15" />
+        <button id="createRoomBtn" class="btn btn-primary">✨ Create Room (Host)</button>
+        <div style="margin: 12px 0; color: var(--text-dim); font-size: 11px;">— YA ROOM CODE ENTER KAREIN —</div>
+        <input type="text" id="joinCodeInput" placeholder="Room Code Daalein (e.g. 7X92)" maxlength="6" />
+        <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+      </div>
+    </main>
+
+    <!-- 2. LOBBY SCREEN -->
+    <main id="lobbyScreen" class="screen">
+      <div class="glass-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="color:var(--success);font-size:11px;font-weight:700;">🟢 LOBBY READY</span>
+            <h2 style="font-size:18px;">Operatives Room</h2>
+          </div>
+          <button id="shareLinkBtn" class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px;">+ Share Link</button>
+        </div>
+        <div id="playersList" class="players-grid"></div>
+        <button id="readyToggleBtn" class="btn btn-secondary">CLICK READY</button>
+        <button id="startGameBtn" class="btn btn-gold hidden">START MISSION</button>
+      </div>
+    </main>
+
+    <!-- 3. GAME SCREEN -->
+    <main id="gameScreen" class="screen">
+      <div class="game-top-bar glass-panel">
+        <div>ROUND <b id="currentRoundDisplay" style="color:var(--cyan-glow);">1</b>/5</div>
+        <div id="timerDisplay" class="timer-box">03:00</div>
+        <div id="submissionCounter" style="color:var(--text-dim);">0/2 Done</div>
+      </div>
+
+      <section class="glass-card">
+        <div class="challenge-category" id="challengeCategory">Environment</div>
+        <h2 class="challenge-title" id="challengeTitle">Loading...</h2>
+        <p class="challenge-prompt" id="challengePrompt"></p>
+        <details class="gyani-hints">
+          <summary>🧠 Need Guidance? Ask PRABAL GYANI</summary>
+          <p style="padding-top:6px;color:var(--text-dim);">💡 Tip: Problem ka root cause pehchano aur multiple blocks (Idea, Action, Budget) jodkar complete solution banao.</p>
+        </details>
+      </section>
+
+      <section>
+        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Add Strategy Blocks:</div>
+        <div class="block-palette" id="blockPalette">
+          <button class="palette-chip" data-type="Idea">💡 Idea</button>
+          <button class="palette-chip" data-type="Action">⚙️ Action</button>
+          <button class="palette-chip" data-type="Budget">💰 Budget</button>
+          <button class="palette-chip" data-type="People">👥 People</button>
+          <button class="palette-chip" data-type="Impact">📈 Impact</button>
+          <button class="palette-chip" data-type="Risk">⚠️ Risk</button>
+        </div>
+        <div id="canvasBlocks"></div>
+        <button id="submitSolutionBtn" class="btn btn-primary btn-large">🔒 LOCK & SUBMIT SOLUTION</button>
+      </section>
+    </main>
+
+    <!-- 4. JUDGING OVERLAY -->
+    <div id="judgingOverlay" class="screen modal-overlay">
+      <div class="glass-card" style="max-width:320px;">
+        <h2 style="color:var(--gold-glow);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
+        <p style="font-size:12px;color:var(--text-dim);">Serverless engine solutions ka logic, practicality aur originality evaluate kar raha hai...</p>
+      </div>
+    </div>
+
+    <!-- 5. ROUND RESULTS -->
+    <main id="roundResultsScreen" class="screen">
+      <div class="glass-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2 style="font-size:18px;">Round Verdict</h2>
+          <span id="resultsRoundBadge" style="font-size:11px;color:var(--cyan-glow);font-weight:700;">Round 1</span>
+        </div>
+        <div class="glass-panel" style="border-left:3px solid var(--gold-glow);margin-bottom:12px;">
+          <span class="honorary-badge" id="myHonoraryTitle">🧠 Dimaag Ka Don</span>
+          <h3 id="myTotalRoundScore" style="font-size:16px;">Score: 85/100</h3>
+          <div id="similarityWarning" class="hidden" style="color:#fca5a5;font-size:11px;margin:4px 0;">⚠️ High Pattern Similarity</div>
+          <div id="scoreBarsGrid" style="margin-top:8px;"></div>
+        </div>
+        <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Round Leaderboard:</h3>
+        <div id="roundLeaderboardList"></div>
+        <button id="nextRoundBtn" class="btn btn-gold hidden" style="margin-top:14px;">NEXT ROUND ➔</button>
+        <p id="waitingHostNotice" style="font-size:12px;color:var(--text-dim);text-align:center;margin-top:10px;">Host agla round shuru karne wala hai...</p>
+      </div>
+    </main>
+
+    <!-- 6. FINAL CEREMONY -->
+    <main id="gameOverScreen" class="screen">
+      <div class="glass-card" style="text-align:center;padding:30px 16px;">
+        <div style="font-size:48px;">🏆</div>
+        <div style="font-size:11px;font-weight:800;color:var(--cyan-glow);letter-spacing:1px;">MYSTERY ROOM COMPLETE</div>
+        <h1 id="winnerName" style="font-size:24px;margin:6px 0;">Operative</h1>
+        <p id="winnerHonorary" style="color:var(--gold-glow);font-size:15px;font-weight:700;margin-bottom:10px;">"🧠 Dimaag Ka Don"</p>
+        <div id="winnerFinalScore" style="font-size:28px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:18px;">427 / 500</div>
+        <div id="finalLeaderboardList" style="text-align:left;margin-bottom:16px;"></div>
+        <button onclick="location.reload()" class="btn btn-primary">PLAY AGAIN</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const CHALLENGES_DB = [
+      { id: 101, category: "Environment", title: "City Plastic Waste Crisis", prompt: "Aapke shahar mein roz 200 ton plastic kachra nikalta hai. Budget bohot kam hai. Ek realistic self-sustaining system design karein jisse log plastic road par na phenkein.", keywords: ["plastic", "waste", "recycle", "shopkeeper", "deposit", "reward", "incentive"] },
+      { id: 102, category: "Education", title: "Low-Cost Rural Learning", prompt: "Ek door ke gaaon mein bar-bar light chali jaati hai aur internet connection nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka engaging learning ecosystem banayein.", keywords: ["offline", "solar", "community", "peer", "radio", "mentor", "local"] },
+      { id: 103, category: "Hostel Life", title: "Hostel Water & Power Conservation", prompt: "600 students ke hostel mein paani aur bijli ki bhari wastage ho rahi hai. Strict fine lagaye bina ek student-led behavioral ya jugaad system design karein.", keywords: ["meter", "gamification", "sensor", "competition", "floor", "incentive"] }
+    ];
+
+    let peer = null, hostConn = null, clientConns = [], isHost = false;
+    let myPlayerId = 'p_' + Math.random().toString(36).substr(2, 6);
+    let myUsername = '', roomCode = '';
+    let roomState = { code: '', hostId: '', players: [], currentRound: 0, totalRounds: 3, usedIds: [], submissions: {}, timeLeft: 180 };
+    let localBlocks = [], timerInterval = null;
+
+    const $ = id => document.getElementById(id);
+    function switchScreen(el) {
+      ['authScreen', 'lobbyScreen', 'gameScreen', 'roundResultsScreen', 'gameOverScreen'].forEach(id => $(id).classList.remove('active'));$('judgingOverlay').classList.remove('active');
+      if (el) el.classList.add('active');
+    }
+
+    $('createRoomBtn').onclick = () => {
+      myUsername = $('usernameInput').value.trim();
+      if (!myUsername) return alert('Pehle apna Codename likhein!');
+      isHost = true;
+      const rand = Math.random().toString(36).substr(2, 4).toUpperCase();
+      roomCode = 'MR-' + rand;
+      peer = new Peer('prabal-mr-' + rand.toLowerCase());
+
+      peer.on('open', () => {
+        roomState.code = roomCode;
+        roomState.hostId = myPlayerId;
+        roomState.players = [{ id: myPlayerId, username: myUsername, isReady: true, totalScore: 0, roundScores: [] }];
+        updateLobby();
+        switchScreen($('lobbyScreen'));
+      });
+
+      peer.on('connection', conn => {
+        clientConns.push(conn);
+        conn.on('data', data => handleHostData(conn, data));
+        conn.on('close', () => {
+          clientConns = clientConns.filter(c => c !== conn);
+          roomState.players = roomState.players.filter(p => p.id !== conn.peer);
+          broadcast({ type: 'SYNC', roomState });
+          updateLobby();
+        });
+      });
+      peer.on('error', err => alert('Room banane mein issue aaya. Dobara try karein!'));
+    };
+
+    $('joinRoomBtn').onclick = () => {
+      myUsername = $('usernameInput').value.trim();
+      let code = $('joinCodeInput').value.trim().toUpperCase();
+      if (!myUsername || !code) return alert('Username aur Room Code dono zaroori hain!');
+      if (!code.startsWith('MR-')) code = 'MR-' + code;
+      roomCode = code;
+
+      isHost = false;
+      peer = new Peer();
+      peer.on('open', () => {
+        hostConn = peer.connect('prabal-mr-' + code.replace('MR-', '').toLowerCase());
+        hostConn.on('open', () => {
+          hostConn.send({ type: 'JOIN', id: myPlayerId, username: myUsername });
+        });
+        hostConn.on('data', data => handleClientData(data));
+      });
+      peer.on('error', () => alert('Room nahi mila. Check karein ki Host room bana chuka hai ya nahi!'));
+    };
+
+    function broadcast(data) { clientConns.forEach(c => { if(c.open) c.send(data); }); }
+
+    function handleHostData(conn, msg) {
+      if (msg.type === 'JOIN') {
+        roomState.players.push({ id: msg.id, username: msg.username, isReady: false, totalScore: 0, roundScores: [] });
+        broadcast({ type: 'SYNC', roomState });
+        updateLobby();
+      }
+      if (msg.type === 'READY') {
+        const p = roomState.players.find(x => x.id === msg.id);
+        if (p) p.isReady = !p.isReady;
+        broadcast({ type: 'SYNC', roomState });
+        updateLobby();
+      }
+      if (msg.type === 'SUBMIT') {
+        roomState.submissions[msg.id] = { id: msg.id, username: msg.username, blocks: msg.blocks };
+        const count = Object.keys(roomState.submissions).length;
+        broadcast({ type: 'SUB_COUNT', count, total: roomState.players.length });
+        $('submissionCounter').innerText = `${count}/${roomState.players.length} Done`;
+        if (count >= roomState.players.length) { clearInterval(timerInterval); runJudge(); }
+      }
+    }
+
+    function handleClientData(msg) {
+      if (msg.type === 'SYNC') { roomState = msg.roomState; updateLobby(); switchScreen($('lobbyScreen')); }
+      if (msg.type === 'START') { roomState = msg.roomState; startRoundUI(msg.ch, msg.round); }
+      if (msg.type === 'TICK') { updateTimer(msg.t); }
+      if (msg.type === 'SUB_COUNT') { $('submissionCounter').innerText = `${msg.count}/${msg.total} Done`; }
+      if (msg.type === 'JUDGING') { $('judgingOverlay').classList.a
