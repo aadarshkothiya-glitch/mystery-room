@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MYSTERY ROOM 1 — PRABAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg: #060f1f;
       --card: rgba(13, 29, 56, 0.95);
-      --border: rgba(31, 107, 255, 0.4);
+      --border: rgba(31, 107, 255, 0.35);
       --primary: #1F6BFF;
       --cyan: #00F0FF;
       --gold: #FFD54A;
@@ -26,13 +26,17 @@
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 12px; }
 
     .app-container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-    @media (min-width: 768px) { .app-container { max-width: 850px; padding: 16px; } }
+    @media (min-width: 768px) {
+      .app-container { max-width: 920px; padding: 14px; }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      .game-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
+    }
 
     .glass-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 20px;
+      padding: 18px;
       box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
     }
 
@@ -40,70 +44,106 @@
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; }
     .brand { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .badge { background: linear-gradient(135deg, var(--primary), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
-    .user-pill { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+
+    /* Name Bar */
+    .name-bar {
+      display: flex; gap: 8px; align-items: center; background: rgba(7, 18, 38, 0.85);
+      border: 1px solid var(--border); border-radius: 14px; padding: 8px 12px;
+    }
+    .name-input {
+      flex: 1; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; outline: none;
+    }
+    .save-name-btn {
+      background: var(--primary); border: none; color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;
+    }
 
     /* Buttons */
     .btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 15px;
-      cursor: pointer; border: none; min-height: 52px; user-select: none; transition: 0.1s;
+      width: 100%; padding: 15px; border-radius: 14px; font-weight: 800; font-size: 15px;
+      cursor: pointer; border: none; min-height: 50px; user-select: none; transition: 0.1s;
     }
     .btn:active { transform: scale(0.97); }
     .btn-primary { background: linear-gradient(135deg, var(--primary), #1551c6); color: #fff; }
     .btn-gold { background: linear-gradient(135deg, var(--gold), #e09f08); color: #071224; font-size: 16px; }
-    .btn-wa { background: #25D366; color: #fff; font-size: 16px; box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35); }
+    .btn-wa { background: #25D366; color: #fff; font-size: 16px; }
     .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
 
-    input[type="text"] {
-      width: 100%; padding: 14px; background: rgba(5,15,32,0.9); border: 1px solid var(--border);
-      border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; outline: none; margin-bottom: 12px;
+    /* Matchup Battle Bar (XYZ vs ABC) */
+    .battle-roster {
+      display: flex; justify-content: space-around; align-items: center;
+      background: rgba(0,0,0,0.5); border: 1.5px solid var(--gold); border-radius: 14px; padding: 14px; margin-bottom: 12px;
     }
+    .fighter-box { text-align: center; }
+    .fighter-role { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 1px; }
+    .fighter-name { font-size: 18px; font-weight: 800; color: var(--gold); font-family: 'Space Grotesk', sans-serif; }
+    .vs-badge { font-size: 16px; font-weight: 900; color: var(--danger); font-family: 'Space Grotesk', sans-serif; }
 
-    /* Big Share Box */
-    .share-box {
+    /* Share Section */
+    .share-banner {
       background: rgba(0,0,0,0.45); border: 2px dashed var(--cyan);
-      border-radius: 16px; padding: 20px; text-align: center; margin: 16px 0;
+      border-radius: 16px; padding: 18px; text-align: center; margin: 12px 0;
     }
-    .room-code-display { font-size: 42px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 4px; margin: 6px 0; }
+    .code-display { font-size: 38px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 4px; }
 
-    /* Player Roster */
-    .player-row {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(7, 18, 36, 0.9); padding: 14px 16px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; font-size: 15px; font-weight: 700;
-    }
-
-    /* Gameplay */
-    .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 14px; font-weight: 700; }
-    .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 18px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
-
-    .chips-tray { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
-    .jugaad-chip {
-      background: rgba(31, 107, 255, 0.25); border: 1px solid var(--cyan);
-      color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px;
-      font-weight: 700; white-space: nowrap; cursor: pointer;
-    }
-    .jugaad-chip:active { background: var(--primary); }
-
-    .strategy-card {
+    /* Strategy Blocks */
+    .block-card {
       background: rgba(7, 18, 38, 0.95); border-left: 4px solid var(--primary);
       border-radius: 12px; padding: 12px; margin-bottom: 10px;
     }
-    .strategy-textarea {
+    .block-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .block-title { font-size: 12px; font-weight: 800; color: var(--cyan); }
+    .mic-btn {
+      background: rgba(255, 213, 74, 0.15); border: 1px solid var(--gold);
+      color: var(--gold); padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .mic-btn.recording { background: var(--danger); color: #fff; border-color: #fff; animation: pulse 0.8s infinite alternate; }
+    @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+
+    .block-textarea {
       width: 100%; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 55px; outline: none;
+      border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 52px; outline: none;
     }
 
+    /* Canvas Drawing Area */
+    .canvas-wrap {
+      background: #040914; border: 1px solid var(--border); border-radius: 12px; padding: 8px; margin-bottom: 12px;
+    }
+    .canvas-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    #sketchCanvas { width: 100%; height: 160px; background: #071328; border-radius: 8px; touch-action: none; cursor: crosshair; }
+
+    /* Chips */
+    .chips-tray { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 10px; }
+    .chip {
+      background: rgba(31, 107, 255, 0.25); border: 1px solid var(--cyan);
+      color: #fff; padding: 7px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
+    }
+
+    /* Live Chat Box */
+    .chat-card {
+      background: rgba(5, 14, 30, 0.95); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-top: 10px;
+    }
+    .chat-messages { height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 4px; font-size: 12px; }
+    .chat-bubble { background: rgba(255,255,255,0.06); padding: 5px 10px; border-radius: 8px; width: fit-content; max-width: 85%; }
+    .chat-bubble.mine { background: rgba(31, 107, 255, 0.3); border: 1px solid var(--primary); align-self: flex-end; }
+    .chat-input-row { display: flex; gap: 6px; margin-top: 8px; }
+    .chat-input {
+      flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+      border-radius: 8px; color: #fff; font-size: 13px; outline: none;
+    }
+    .chat-send-btn { background: var(--primary); border: none; color: #fff; padding: 0 14px; border-radius: 8px; font-weight: 800; cursor: pointer; }
+
+    /* Opponent Dossier */
     .dossier-card {
       background: rgba(5, 14, 28, 0.95); border: 1px solid var(--border);
       border-radius: 12px; padding: 14px; margin-bottom: 10px;
     }
+    .dossier-img { width: 100%; max-height: 160px; object-fit: contain; background: #071328; border-radius: 8px; margin-top: 8px; }
 
     .toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: var(--success); color: #fff; padding: 10px 22px; border-radius: 20px;
-      font-size: 14px; font-weight: 800; display: none; z-index: 10000;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      font-size: 14px; font-weight: 800; display: none; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
   </style>
 </head>
@@ -113,74 +153,119 @@
 
   <div class="app-container">
 
+    <!-- Top Navbar -->
     <header class="glass-card navbar">
       <div class="brand">
         <span class="badge">PRABAL</span>
         <span>MYSTERY ROOM 1</span>
       </div>
-      <div class="user-pill">
-        <span id="navUsername">Agent</span>
-        <span onclick="editName()" style="cursor:pointer;color:var(--cyan);margin-left:4px;">✏️</span>
+      <!-- Name Saver Bar -->
+      <div class="name-bar">
+        <span>👤</span>
+        <input type="text" id="usernameInput" class="name-input" placeholder="Apna naam likhein..." maxlength="15" />
+        <button onclick="saveNameManually()" class="save-name-btn">SAVE</button>
       </div>
     </header>
 
+    <!-- 1. LOBBY SCREEN (DEFAULT) -->
     <main id="lobbyView">
       <div class="glass-card">
-        
-        <div style="margin-bottom:12px;">
-          <label style="font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;">YOUR CODENAME / NAME:</label>
-          <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" oninput="saveName()" />
+
+        <!-- Matchup Battle Preview (XYZ vs ABC) -->
+        <div class="battle-roster">
+          <div class="fighter-box">
+            <div class="fighter-role">👑 HOST</div>
+            <div id="hostNameTag" class="fighter-name">XYZ</div>
+          </div>
+          <div class="vs-badge">⚡ VS ⚡</div>
+          <div class="fighter-box">
+            <div class="fighter-role">🎮 CHALLENGER</div>
+            <div id="guestNameTag" class="fighter-name">ABC (Waiting...)</div>
+          </div>
         </div>
 
-        <div class="share-box">
-          <div style="font-size:12px;color:var(--muted);font-weight:800;">SHARE ROOM LINK WITH FRIEND:</div>
-          <div id="roomCodeDisplay" class="room-code-display">----</div>
-          
+        <!-- Share Box -->
+        <div class="share-banner">
+          <div style="font-size:12px;color:var(--muted);font-weight:800;">SHARE ROOM WITH FRIEND:</div>
+          <div id="roomCodeDisplay" class="code-display">----</div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
             <button onclick="shareWhatsApp()" class="btn btn-wa">💬 WhatsApp Par Dost Ko Bhejo</button>
             <button onclick="copyShareLink()" class="btn btn-secondary">📋 Copy Game Link</button>
           </div>
         </div>
 
-        <div style="margin-top:16px;">
-          <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">CONNECTED PLAYERS:</div>
-          <div id="playersList"></div>
+        <button id="startGameBtn" onclick="handleStartGame()" class="btn btn-gold" style="display:none;margin-top:14px;">
+          🚀 START MISSION (PLAYERS CONNECTED)
+        </button>
+        <div id="waitNotice" style="text-align:center;font-size:13px;color:var(--muted);padding:8px;">
+          ⏳ Dost ke link open karne ka intezar hai...
+        </div>
 
-          <div style="margin-top:16px;">
-            <button id="startGameBtn" onclick="handleStartGame()" class="btn btn-gold" style="display:none;">🚀 START GAME (BOTH READY)</button>
-            <div id="waitingNotice" style="text-align:center;font-size:13px;color:var(--muted);padding:10px;">
-              ⏳ Dost ke link open karne ka intezar hai...
-            </div>
+        <!-- In-Game Live Chat -->
+        <div class="chat-card">
+          <div style="font-size:12px;font-weight:800;color:var(--cyan);margin-bottom:6px;">💬 LIVE CHAMBER CHAT:</div>
+          <div id="chatMessages" class="chat-messages">
+            <div class="chat-bubble">System: Chamber ready. Dost ko bulayein!</div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" class="chat-input" placeholder="Message likhein..." onkeydown="if(event.key==='Enter')sendChat()" />
+            <button onclick="sendChat()" class="chat-send-btn">Send</button>
           </div>
         </div>
 
       </div>
     </main>
 
-    <main id="gameView" style="display: none;">
-      <div class="glass-card top-stats" style="margin-bottom:12px;">
-        <div>ROUND <b id="roundNum" style="color:var(--cyan);">1</b> OF 3</div>
-        <div id="timerBox" class="timer-pill">03:00</div>
-        <div id="doneCount" style="color:var(--muted);">0/2 Done</div>
+    <!-- 2. GAMEPLAY SCREEN -->
+    <main id="gameView" style="display:none;">
+      <!-- Matchup Header -->
+      <div class="battle-roster" style="padding:8px 14px;margin-bottom:8px;">
+        <span id="gameHostTag" style="font-weight:800;color:var(--gold);">XYZ</span>
+        <span style="color:var(--cyan);font-family:monospace;font-size:18px;font-weight:800;" id="timerBox">03:00</span>
+        <span id="gameGuestTag" style="font-weight:800;color:var(--cyan);">ABC</span>
       </div>
 
+      <!-- Crisis Briefing -->
       <div class="glass-card" style="margin-bottom:12px;">
-        <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis</span>
-        <h2 id="challengeTitle" style="font-size:20px;margin:4px 0 8px;">Loading...</h2>
-        <p id="challengePrompt" style="font-size:14px;color:#cbd5e1;line-height:1.6;margin-bottom:14px;"></p>
+        <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis Briefing</span>
+        <h2 id="challengeTitle" style="font-size:19px;margin:4px 0 6px;">Loading Crisis...</h2>
+        <p id="challengePrompt" style="font-size:13px;color:#cbd5e1;line-height:1.5;margin-bottom:10px;"></p>
 
-        <div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px;">💡 TAP CHIP TO AUTO-INSERT JUGAAD IDEA:</div>
+        <div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px;">💡 QUICK JUGAAD CHIPS (TAP TO INSERT):</div>
         <div id="chipsTray" class="chips-tray"></div>
       </div>
 
+      <!-- Strategy Builder & Tools -->
       <div class="glass-card">
-        <div style="font-size:13px;font-weight:800;margin-bottom:10px;">TACTICAL STRATEGY BLUEPRINT:</div>
+        <!-- Visual Sketch Tool -->
+        <div class="canvas-wrap">
+          <div class="canvas-tools">
+            <span style="font-size:11px;font-weight:800;color:var(--cyan);">🎨 DRAW STRATEGY DIAGRAM / MAP:</span>
+            <button onclick="clearCanvas()" style="background:rgba(239,68,68,0.2);border:1px solid var(--danger);color:#fca5a5;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;">Clear</button>
+          </div>
+          <canvas id="sketchCanvas"></canvas>
+        </div>
+
+        <div style="font-size:12px;font-weight:800;margin-bottom:8px;">TACTICAL BLUEPRINT (SPEAK OR TYPE):</div>
         <div id="blocksContainer"></div>
-        <button id="submitBtn" onclick="handleSubmitStrategy()" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
+
+        <button id="submitBtn" onclick="handleSubmitStrategy()" class="btn btn-primary" style="margin-top:10px;">
+          🔒 LOCK & SUBMIT STRATEGY
+        </button>
+      </div>
+
+      <!-- Mini In-Game Chat -->
+      <div class="chat-card">
+        <div id="chatMessagesGame" class="chat-messages" style="height:80px;"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInputGame" class="chat-input" placeholder="Match ke dauran baat karein..." onkeydown="if(event.key==='Enter')sendChat(true)" />
+          <button onclick="sendChat(true)" class="chat-send-btn">Send</button>
+        </div>
       </div>
     </main>
 
-    <main id="resultsView" style="display: none;">
+    <!-- 3. RESULTS & SHOWDOWN SCREEN -->
+    <main id="resultsView" style="display:none;">
       <div class="glass-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
           <h2 style="font-size:20px;">Round Verdict</h2>
@@ -189,7 +274,8 @@
 
         <div id="leaderboardList" style="margin-bottom:16px;"></div>
 
-        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponent Strategy Dossier:</h3>
+        <!-- Opponent Dossier Showcase (Drawings + Ideas) -->
+        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Operatives Solution Showcase:</h3>
         <div id="opponentCards"></div>
 
         <button id="nextRoundBtn" onclick="handleNextRound()" class="btn btn-gold" style="display:none;margin-top:14px;">NEXT ROUND ➔</button>
@@ -197,7 +283,8 @@
       </div>
     </main>
 
-    <main id="winnerView" style="display: none;">
+    <!-- 4. FINAL WINNER SCREEN -->
+    <main id="winnerView" style="display:none;">
       <div class="glass-card" style="text-align:center;padding:34px 16px;">
         <div style="font-size:52px;margin-bottom:8px;">🏆</div>
         <h1 id="winnerName" style="font-size:26px;margin-bottom:4px;">Winner</h1>
@@ -214,7 +301,7 @@
       {
         cat: "City Crisis",
         title: "City Plastic Waste Avalanche",
-        prompt: "Aapke shahar mein roz 200 ton single-use plastic kachra nikalta hai. Municipal budget zero hai. Ek aisa jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
+        prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Municipal budget zero hai. Ek aisa practical jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
         chips: ["Free Chai on 10 Bags", "WhatsApp Bot with Photo Coins", "School Eco-Star Points", "Deposit Refund Scheme"]
       },
       {
@@ -231,21 +318,21 @@
       }
     ];
 
-    // Crash-Safe Storage
+    // Crash-Safe Local Storage
     function getStore(k, d) { try { return localStorage.getItem(k) || d; } catch(e) { return d; } }
     function setStore(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
 
     let myId = getStore('pmr_uid', 'p_' + Math.random().toString(36).substr(2, 6));
     setStore('pmr_uid', myId);
-    let myName = getStore('pmr_uname', '');
+    let myName = getStore('pmr_uname', 'Agent_' + Math.floor(100 + Math.random()*900));
 
     let isHost = false;
     let roomCode = '';
     let roomState = { code: '', hostId: '', players: [], round: 0, totRound: 3, subs: {}, time: 180 };
     let currentBlocks = [
       { type: "Masterstroke Idea", text: "" },
-      { type: "Ground Action", text: "" },
-      { type: "Zero-Budget Hack", text: "" }
+      { type: "Ground Action Plan", text: "" },
+      { type: "Zero-Budget Jugaad", text: "" }
     ];
     let timerInt = null;
 
@@ -264,40 +351,40 @@
         if (el) el.style.display = (id === viewId) ? 'block' : 'none';
       });
       window.scrollTo(0, 0);
+      if (viewId === 'gameView') initCanvas();
     }
 
-    function saveName() {
+    // Name Management
+    function initName() {
+      $('usernameInput').value = myName;
+      updateNameDisplays();
+    }
+
+    function saveNameManually() {
       const val = $('usernameInput').value.trim();
       if (val) {
         myName = val.substring(0, 15);
         setStore('pmr_uname', myName);
-        $('navUsername').innerText = myName;
+        updateNameDisplays();
+        showToast("✅ Name Saved: " + myName);
+        if (roomCode) {
+          postEvent({ type: 'NAME_UPDATE', id: myId, name: myName });
+        }
       }
     }
 
-    function editName() {
-      let n = prompt("Naya Codename likhein:", myName);
-      if (n && n.trim()) {
-        myName = n.trim().substring(0, 15);
-        setStore('pmr_uname', myName);
-        $('navUsername').innerText = myName;
-        $('usernameInput').value = myName;
-        announcePresence();
+    function updateNameDisplays() {
+      if (isHost) {
+        $('hostNameTag').innerText = myName;
+        $('gameHostTag').innerText = myName;
+      } else {
+        $('guestNameTag').innerText = myName;
+        $('gameGuestTag').innerText = myName;
       }
-    }
-
-    function initName() {
-      if (!myName) {
-        const val = $('usernameInput').value.trim();
-        myName = val ? val.substring(0, 15) : ('Agent_' + Math.floor(100 + Math.random() * 900));
-        setStore('pmr_uname', myName);
-      }
-      $('usernameInput').value = myName;
-      $('navUsername').innerText = myName;
     }
 
     // ==========================================
-    // PURE NATIVE HTTP PUB/SUB (ZERO LIBRARIES)
+    // REAL-TIME SYNC ENGINE (Port 443 Pub/Sub)
     // ==========================================
     const SYNC_URL = 'https://ntfy.sh/pmr1_rm_';
 
@@ -323,164 +410,36 @@
       };
     }
 
-    // Host Handler
     function handleHostEvent(msg) {
       if (msg.senderId === myId) return;
 
       if (msg.type === 'JOIN') {
         let p = roomState.players.find(x => x.id === msg.player.id);
         if (!p) {
-          roomState.players.push({ id: msg.player.id, name: msg.player.name, ready: true, score: 0 });
+          roomState.players.push({ id: msg.player.id, name: msg.player.name, score: 0 });
         }
         postEvent({ type: 'SYNC', state: roomState });
-        updateRoster();
+        updateRosterUI();
+      }
+
+      if (msg.type === 'NAME_UPDATE') {
+        let p = roomState.players.find(x => x.id === msg.id);
+        if (p) p.name = msg.name;
+        postEvent({ type: 'SYNC', state: roomState });
+        updateRosterUI();
+      }
+
+      if (msg.type === 'CHAT') {
+        appendChatMessage(msg.senderName, msg.text);
       }
 
       if (msg.type === 'SUBMIT') {
-        roomState.subs[msg.playerId] = { id: msg.playerId, name: msg.name, blocks: msg.blocks };
+        roomState.subs[msg.playerId] = { id: msg.playerId, name: msg.name, blocks: msg.blocks, sketch: msg.sketch };
         const done = Object.keys(roomState.subs).length;
         postEvent({ type: 'SUB_COUNT', done, total: roomState.players.length });
         $('doneCount').innerText = `${done}/${roomState.players.length} Done`;
 
         if (done >= roomState.players.length) {
           clearInterval(timerInt);
-          judgeMission();
-        }
-      }
-    }
-
-    // Client Handler
-    function handleClientEvent(msg) {
-      if (msg.type === 'SYNC') {
-        roomState = msg.state;
-        updateRoster();
-      }
-      if (msg.type === 'START_ROUND') {
-        roomState = msg.state;
-        startRoundUI(msg.ch, msg.round);
-      }
-      if (msg.type === 'TIMER_TICK') {
-        updateTimer(msg.t);
-      }
-      if (msg.type === 'SUB_COUNT') {
-        $('doneCount').innerText = `${msg.done}/${msg.total} Done`;
-      }
-      if (msg.type === 'SHOW_RESULTS') {
-        showResults(msg.results, msg.round, msg.isFinal);
-      }
-      if (msg.type === 'MATCH_OVER') {
-        showWinner(msg.winner);
-      }
-    }
-
-    function announcePresence() {
-      if (!isHost && roomCode) {
-        postEvent({ type: 'JOIN', player: { id: myId, name: myName } });
-      }
-    }
-
-    function updateRoster() {
-      $('roomCodeDisplay').innerText = roomState.code;
-      $('playersList').innerHTML = roomState.players.map(p => `
-        <div class="player-row">
-          <span>${p.id === roomState.hostId ? '👑 ' : ''}${escapeHtml(p.name)} ${p.id === myId ? '(You)' : ''}</span>
-          <span style="color:var(--success);font-size:12px;">🟢 CONNECTED</span>
-        </div>
-      `).join('');
-
-      if (isHost) {
-        if (roomState.players.length >= 2) {
-          $('startGameBtn').style.display = 'block';$('waitingNotice').style.display = 'none';
-        } else {
-          $('startGameBtn').style.display = 'none';$('waitingNotice').style.display = 'block';
-        }
-      } else {
-        $('startGameBtn').style.display = 'none';$('waitingNotice').innerText = '🟢 Connected! Host ke game start karne ka intezar hai...';
-      }
-    }
-
-    // Share Functions
-    function copyShareLink() {
-      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => showToast('✅ Link Copied!'));
-      } else {
-        prompt('Copy link:', url);
-      }
-    }
-
-    function shareWhatsApp() {
-      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      const text = encodeURIComponent(`Bhai Mystery Room 1 mein aao, saath mein solve karte hain!\nIs link par click karke direct join karo:\n${url}`);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-
-    // ==========================================
-    // GAMEPLAY
-    // ==========================================
-    function handleStartGame() {
-      if (!isHost) return;
-      hostStartRound();
-    }
-
-    function hostStartRound() {
-      roomState.round++;
-      roomState.subs = {};
-      const ch = CHALLENGES[(roomState.round - 1) % CHALLENGES.length];
-      roomState.time = 180;
-
-      postEvent({ type: 'START_ROUND', state: roomState, ch, round: roomState.round });
-      startRoundUI(ch, roomState.round);
-
-      clearInterval(timerInt);
-      timerInt = setInterval(() => {
-        roomState.time--;
-        postEvent({ type: 'TIMER_TICK', t: roomState.time });
-        updateTimer(roomState.time);
-        if (roomState.time <= 0) {
-          clearInterval(timerInt);
-          judgeMission();
-        }
-      }, 1000);
-    }
-
-    function startRoundUI(ch, round) {
-      switchView('gameView');
-      $('roundNum').innerText = round;
-      $('challengeCat').innerText = ch.cat;
-      $('challengeTitle').innerText = ch.title;
-      $('challengePrompt').innerText = ch.prompt;
-      $('doneCount').innerText = `0/${roomState.players.length} Done`;
-
-      $('chipsTray').innerHTML = ch.chips.map(chipText => `
-        <button class="jugaad-chip" onclick="injectChip('${escapeHtml(chipText)}')">+ ${chipText}</button>
-      `).join('');
-
-      currentBlocks = [
-        { type: "Masterstroke Idea", text: "" },
-        { type: "Ground Action", text: "" },
-        { type: "Zero-Budget Hack", text: "" }
-      ];
-      renderBlocks();
-
-      $('submitBtn').disabled = false;
-      $('submitBtn').innerText = '🔒 LOCK & SUBMIT STRATEGY';
-    }
-
-    window.injectChip = function(text) {
-      let empty = currentBlocks.find(b => !b.text.trim());
-      if (empty) {
-        empty.text = text;
-      } else {
-        currentBlocks[0].text += (currentBlocks[0].text ? ', ' : '') + text;
-      }
-      renderBlocks();
-      showToast('Idea Added!');
-    };
-
-    function renderBlocks() {
-      $('blocksContainer').innerHTML = currentBlocks.map((b, i) => `
-        <div class="strategy-card">
-          <div style="font-size:12px;font-weight:800;color:var(--cyan);margin-bottom:6px;">⚡ ${b.type.toUpperCase()}</div>
-          <textarea class="strategy-textarea" placeholder="Apna plan likhein ya upar chip t
+  
           
