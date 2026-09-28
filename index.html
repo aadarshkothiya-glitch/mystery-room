@@ -11,7 +11,7 @@
   <style>
     :root {
       --bg: #060f1f;
-      --card: rgba(13, 29, 56, 0.92);
+      --card: rgba(13, 29, 56, 0.95);
       --border: rgba(31, 107, 255, 0.4);
       --primary: #1F6BFF;
       --cyan: #00F0FF;
@@ -22,98 +22,68 @@
       --danger: #EF4444;
     }
 
-    * {
-      box-sizing: border-box; margin: 0; padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      touch-action: manipulation; /* Tablet touch lock fix */
-      -webkit-tap-highlight-color: rgba(31, 107, 255, 0.4);
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; touch-action: manipulation; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 12px; }
 
-    /* Tablet & Mobile Layout */
-    .app-container {
-      max-width: 600px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @media (min-width: 768px) {
-      .app-container { max-width: 900px; padding: 12px; }
-      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-      .game-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
-    }
+    .app-container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 768px) { .app-container { max-width: 850px; padding: 16px; } }
 
     .glass-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 18px;
+      padding: 20px;
       box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
     }
 
     /* Navbar */
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; }
-    .brand { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
+    .brand { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .badge { background: linear-gradient(135deg, var(--primary), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
-    .user-pill { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .user-pill { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; }
 
-    /* Buttons with Active Push Effect */
+    /* Buttons */
     .btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 15px;
-      cursor: pointer; border: none; min-height: 52px; user-select: none;
+      width: 100%; padding: 16px; border-radius: 14px; font-weight: 800; font-size: 15px;
+      cursor: pointer; border: none; min-height: 52px; user-select: none; transition: 0.1s;
     }
-    .btn:active { transform: scale(0.96); filter: brightness(1.2); }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), #1551c6); color: #fff; box-shadow: 0 4px 15px rgba(31, 107, 255, 0.4); }
-    .btn-gold { background: linear-gradient(135deg, var(--gold), #e09f08); color: #071224; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), #1551c6); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), #e09f08); color: #071224; font-size: 16px; }
+    .btn-wa { background: #25D366; color: #fff; font-size: 16px; box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35); }
     .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-    .btn-wa { background: #25D366; color: #fff; }
 
     input[type="text"] {
       width: 100%; padding: 14px; background: rgba(5,15,32,0.9); border: 1px solid var(--border);
       border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; outline: none; margin-bottom: 12px;
     }
 
-    .option-box { background: rgba(7, 18, 38, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    /* Big Share Box */
+    .share-box {
+      background: rgba(0,0,0,0.45); border: 2px dashed var(--cyan);
+      border-radius: 16px; padding: 20px; text-align: center; margin: 16px 0;
+    }
+    .room-code-display { font-size: 42px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 4px; margin: 6px 0; }
 
-    /* Lobby Display */
-    .banner-code-box {
-      background: rgba(0,0,0,0.5); border: 1.5px solid var(--cyan);
-      border-radius: 14px; padding: 18px; text-align: center; margin-bottom: 14px;
-    }
-    .code-text-big { font-size: 42px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 4px; }
-    .player-roster-item {
+    /* Player Roster */
+    .player-row {
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(7, 18, 36, 0.9); padding: 12px 14px; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; font-size: 14px; font-weight: 700;
-    }
-
-    /* Radar */
-    .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
-    .radar-player-row {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(8, 22, 44, 0.85); border: 1px solid rgba(255,255,255,0.06);
-      padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
-    }
-    .invite-action-btn {
-      background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
-      color: var(--cyan); padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;
+      background: rgba(7, 18, 36, 0.9); padding: 14px 16px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; font-size: 15px; font-weight: 700;
     }
 
     /* Gameplay */
-    .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; font-size: 13px; font-weight: 700; }
+    .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; font-size: 14px; font-weight: 700; }
     .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 18px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
 
-    .chips-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
+    .chips-tray { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
     .jugaad-chip {
-      background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
-      color: #fff; padding: 7px 12px; border-radius: 20px; font-size: 12px;
+      background: rgba(31, 107, 255, 0.25); border: 1px solid var(--cyan);
+      color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px;
       font-weight: 700; white-space: nowrap; cursor: pointer;
     }
+    .jugaad-chip:active { background: var(--primary); }
 
     .strategy-card {
       background: rgba(7, 18, 38, 0.95); border-left: 4px solid var(--primary);
@@ -129,15 +99,11 @@
       border-radius: 12px; padding: 14px; margin-bottom: 10px;
     }
 
-    .modal-box {
-      position: fixed; inset: 0; background: rgba(5, 12, 24, 0.96);
-      display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
-    }
-
     .toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: var(--success); color: #fff; padding: 9px 20px; border-radius: 20px;
-      font-size: 13px; font-weight: 700; display: none; z-index: 10000;
+      background: var(--success); color: #fff; padding: 10px 22px; border-radius: 20px;
+      font-size: 14px; font-weight: 800; display: none; z-index: 10000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
   </style>
 </head>
@@ -145,22 +111,8 @@
 
   <div id="toast" class="toast">Link Copied!</div>
 
-  <!-- INVITATION MODAL -->
-  <div id="inviteModal" class="modal-box">
-    <div class="glass-card" style="text-align:center; max-width:340px; width:100%; border:2px solid var(--gold);">
-      <div style="font-size:38px;margin-bottom:8px;">🎮</div>
-      <h3 style="color:var(--gold);font-size:18px;">Mission Invitation!</h3>
-      <p id="inviteModalText" style="margin:10px 0 16px;font-size:14px;line-height:1.4;">Operative invited you!</p>
-      <div style="display:flex;gap:10px;">
-        <button onclick="declineInvite()" class="btn btn-secondary" style="border-color:var(--danger);color:#fca5a5;">Decline</button>
-        <button onclick="acceptInvite()" class="btn btn-gold">Accept & Join</button>
-      </div>
-    </div>
-  </div>
-
   <div class="app-container">
 
-    <!-- Top Navbar -->
     <header class="glass-card navbar">
       <div class="brand">
         <span class="badge">PRABAL</span>
@@ -172,114 +124,63 @@
       </div>
     </header>
 
-    <!-- 1. HOME SCREEN -->
-    <div id="authScreen">
-      <div class="grid-2">
-        
-        <!-- Left: Codename & 2 Action Boxes -->
-        <div class="glass-card">
-          <div style="margin-bottom:14px;">
-            <label style="font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;">YOUR CODENAME / NAME:</label>
-            <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" oninput="saveNameInput()" />
-          </div>
-
-          <!-- CREATE ROOM BOX -->
-          <div class="option-box">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-              <span style="font-size:22px;">👑</span>
-              <b style="font-size:16px;">Host a Match</b>
-            </div>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Instant chamber banayein aur doston ko bulayein.</p>
-            <button id="createRoomBtn" onclick="handleCreateRoom()" class="btn btn-primary">✨ Create Room (Instant)</button>
-          </div>
-
-          <!-- JOIN ROOM BOX -->
-          <div class="option-box">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-              <span style="font-size:22px;">🎮</span>
-              <b style="font-size:16px;">Join with Code</b>
-            </div>
-            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Dost ka 4-digit code yahan enter karein.</p>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="joinCodeInput" placeholder="CODE (e.g. 7X92)" maxlength="6" style="margin-bottom:0;text-align:center;font-size:16px;" />
-              <button onclick="handleJoinRoom()" class="btn btn-secondary" style="width:auto;padding:0 22px;white-space:nowrap;">Join</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Active Online Radar -->
-        <div class="glass-card">
-          <div class="radar-header">
-            <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;">
-              <span class="radar-pulse"></span>
-              <span>ACTIVE PLAYERS RADAR</span>
-            </div>
-            <span id="radarCount" style="font-size:11px;color:var(--cyan);font-weight:700;">Scanning...</span>
-          </div>
-          <div id="radarList" class="radar-list">
-            <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px;">Searching for online players...<br>Dost ko link share karein!</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- 2. LOBBY SCREEN -->
-    <div id="lobbyScreen" style="display: none;">
+    <main id="lobbyView">
       <div class="glass-card">
-        <div class="grid-2">
-          <div>
-            <div class="banner-code-box">
-              <div style="font-size:11px;color:var(--muted);font-weight:800;">CHAMBER ROOM CODE:</div>
-              <div id="roomCodeDisplay" class="code-text-big">----</div>
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <button onclick="shareWhatsApp()" class="btn btn-wa">💬 WhatsApp Bhejo</button>
-                <button onclick="copyLink()" class="btn btn-secondary">📋 Copy Link</button>
-              </div>
-            </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;">YOUR CODENAME / NAME:</label>
+          <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" oninput="saveName()" />
+        </div>
+
+        <div class="share-box">
+          <div style="font-size:12px;color:var(--muted);font-weight:800;">SHARE ROOM LINK WITH FRIEND:</div>
+          <div id="roomCodeDisplay" class="room-code-display">----</div>
+          
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+            <button onclick="shareWhatsApp()" class="btn btn-wa">💬 WhatsApp Par Dost Ko Bhejo</button>
+            <button onclick="copyShareLink()" class="btn btn-secondary">📋 Copy Game Link</button>
           </div>
+        </div>
 
-          <div>
-            <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">CONNECTED PLAYERS:</div>
-            <div id="playersList"></div>
+        <div style="margin-top:16px;">
+          <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">CONNECTED PLAYERS:</div>
+          <div id="playersList"></div>
 
-            <div style="margin-top:14px;">
-              <button id="readyToggleBtn" onclick="handleToggleReady()" class="btn btn-secondary">CLICK READY</button>
-              <button id="startGameBtn" onclick="handleStartGame()" class="btn btn-gold" style="display:none;">START MISSION ➔</button>
+          <div style="margin-top:16px;">
+            <button id="startGameBtn" onclick="handleStartGame()" class="btn btn-gold" style="display:none;">🚀 START GAME (BOTH READY)</button>
+            <div id="waitingNotice" style="text-align:center;font-size:13px;color:var(--muted);padding:10px;">
+              ⏳ Dost ke link open karne ka intezar hai...
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- 3. GAMEPLAY SCREEN -->
-    <div id="gameScreen" style="display: none;">
+      </div>
+    </main>
+
+    <main id="gameView" style="display: none;">
       <div class="glass-card top-stats" style="margin-bottom:12px;">
         <div>ROUND <b id="roundNum" style="color:var(--cyan);">1</b> OF 3</div>
         <div id="timerBox" class="timer-pill">03:00</div>
         <div id="doneCount" style="color:var(--muted);">0/2 Done</div>
       </div>
 
-      <div class="game-grid">
-        <div class="glass-card">
-          <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis</span>
-          <h2 id="challengeTitle" style="font-size:20px;margin:4px 0 8px;">Loading...</h2>
-          <p id="challengePrompt" style="font-size:14px;color:#cbd5e1;line-height:1.6;margin-bottom:14px;"></p>
+      <div class="glass-card" style="margin-bottom:12px;">
+        <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis</span>
+        <h2 id="challengeTitle" style="font-size:20px;margin:4px 0 8px;">Loading...</h2>
+        <p id="challengePrompt" style="font-size:14px;color:#cbd5e1;line-height:1.6;margin-bottom:14px;"></p>
 
-          <div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px;">💡 TAP JUGAAD CHIP TO AUTO-INSERT:</div>
-          <div id="chipsTray" class="chips-carousel"></div>
-        </div>
-
-        <div class="glass-card">
-          <div style="font-size:13px;font-weight:800;margin-bottom:10px;">TACTICAL STRATEGY BLUEPRINT:</div>
-          <div id="blocksContainer"></div>
-          <button id="submitBtn" onclick="handleSubmitStrategy()" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
-        </div>
+        <div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px;">💡 TAP CHIP TO AUTO-INSERT JUGAAD IDEA:</div>
+        <div id="chipsTray" class="chips-tray"></div>
       </div>
-    </div>
 
-    <!-- 4. RESULTS SCREEN -->
-    <div id="resultsScreen" style="display: none;">
+      <div class="glass-card">
+        <div style="font-size:13px;font-weight:800;margin-bottom:10px;">TACTICAL STRATEGY BLUEPRINT:</div>
+        <div id="blocksContainer"></div>
+        <button id="submitBtn" onclick="handleSubmitStrategy()" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
+      </div>
+    </main>
+
+    <main id="resultsView" style="display: none;">
       <div class="glass-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
           <h2 style="font-size:20px;">Round Verdict</h2>
@@ -288,16 +189,15 @@
 
         <div id="leaderboardList" style="margin-bottom:16px;"></div>
 
-        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponents Strategy Dossier:</h3>
+        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponent Strategy Dossier:</h3>
         <div id="opponentCards"></div>
 
         <button id="nextRoundBtn" onclick="handleNextRound()" class="btn btn-gold" style="display:none;margin-top:14px;">NEXT ROUND ➔</button>
         <p id="waitHostText" style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Waiting for host to proceed...</p>
       </div>
-    </div>
+    </main>
 
-    <!-- 5. FINAL CEREMONY -->
-    <div id="gameOverScreen" style="display: none;">
+    <main id="winnerView" style="display: none;">
       <div class="glass-card" style="text-align:center;padding:34px 16px;">
         <div style="font-size:52px;margin-bottom:8px;">🏆</div>
         <h1 id="winnerName" style="font-size:26px;margin-bottom:4px;">Winner</h1>
@@ -305,16 +205,8 @@
         <div id="finalScore" style="font-size:32px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:20px;">0 TOTAL PTS</div>
         <button onclick="location.reload()" class="btn btn-primary">PLAY AGAIN</button>
       </div>
-    </div>
+    </main>
 
-  </div>
-
-  <!-- Judging Overlay -->
-  <div id="judgeModal" class="modal-box">
-    <div class="glass-card" style="text-align:center;max-width:320px;">
-      <h2 style="color:var(--gold);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
-      <p style="font-size:13px;color:var(--muted);">Comparing creativity, logic & street execution...</p>
-    </div>
   </div>
 
   <script>
@@ -322,20 +214,20 @@
       {
         cat: "City Crisis",
         title: "City Plastic Waste Avalanche",
-        prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Municipal budget zero hai. Ek aisa practical jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
+        prompt: "Aapke shahar mein roz 200 ton single-use plastic kachra nikalta hai. Municipal budget zero hai. Ek aisa jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
         chips: ["Free Chai on 10 Bags", "WhatsApp Bot with Photo Coins", "School Eco-Star Points", "Deposit Refund Scheme"]
       },
       {
         cat: "Education Hack",
         title: "Zero-Internet Rural Learning Hub",
         prompt: "Door ke gaaon mein bijli bar-bar jaati hai aur mobile network nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka interactive learning ecosystem banao.",
-        chips: ["Solar Community Radio Quiz", "Senior-Student Mentorship", "Memory Card Rotation Library", "Audio Story Cassettes"]
+        chips: ["Solar Community Radio Quiz", "Senior-Student Mentorship", "Memory Card Rotation Hub", "Audio Story Cassettes"]
       },
       {
         cat: "Hostel Emergency",
         title: "Hostel Water & Power Crunch",
         prompt: "Hostel mein 40% paani ki killat hai aur students cooler/fans khule chhod dete hain. Bina kisi fine ya dande ke students ko gamify karke wastage roko!",
-        chips: ["Floor vs Floor Biryani Cup", "4-Minute Shower Hourglass", "Student Ninja Patrol", "Clean Floor Extra Wi-Fi Bandwidth"]
+        chips: ["Floor vs Floor Biryani Cup", "4-Minute Shower Hourglass", "Student Ninja Patrol", "Clean Floor Extra Wi-Fi"]
       }
     ];
 
@@ -343,19 +235,16 @@
     function getStore(k, d) { try { return localStorage.getItem(k) || d; } catch(e) { return d; } }
     function setStore(k, v) { try { localStorage.setItem(k, v); } catch(e) {} }
 
-    let myId = getStore('pmr_id', 'p_' + Math.random().toString(36).substr(2, 6));
-    setStore('pmr_id', myId);
-    let myName = getStore('pmr_name', '');
+    let myId = getStore('pmr_uid', 'p_' + Math.random().toString(36).substr(2, 6));
+    setStore('pmr_uid', myId);
+    let myName = getStore('pmr_uname', '');
 
     let isHost = false;
     let roomCode = '';
-    let roomPollTimer = null;
-    let onlinePlayers = new Map();
-
     let roomState = { code: '', hostId: '', players: [], round: 0, totRound: 3, subs: {}, time: 180 };
     let currentBlocks = [
       { type: "Masterstroke Idea", text: "" },
-      { type: "Ground Execution", text: "" },
+      { type: "Ground Action", text: "" },
       { type: "Zero-Budget Hack", text: "" }
     ];
     let timerInt = null;
@@ -364,28 +253,24 @@
 
     function showToast(msg) {
       const t = $('toast');
-      if (!t) return;
       t.innerText = msg;
       t.style.display = 'block';
       setTimeout(() => { t.style.display = 'none'; }, 2200);
     }
 
-    // 100% Guaranteed Screen Switch
-    function switchScreen(screenId) {
-      ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'].forEach(id => {
+    function switchView(viewId) {
+      ['lobbyView', 'gameView', 'resultsView', 'winnerView'].forEach(id => {
         const el = $(id);
-        if (el) el.style.display = (id === screenId) ? 'block' : 'none';
+        if (el) el.style.display = (id === viewId) ? 'block' : 'none';
       });
-      const modal = $('judgeModal');
-      if (modal) modal.style.display = 'none';
       window.scrollTo(0, 0);
     }
 
-    function saveNameInput() {
+    function saveName() {
       const val = $('usernameInput').value.trim();
       if (val) {
         myName = val.substring(0, 15);
-        setStore('pmr_name', myName);
+        setStore('pmr_uname', myName);
         $('navUsername').innerText = myName;
       }
     }
@@ -394,50 +279,208 @@
       let n = prompt("Naya Codename likhein:", myName);
       if (n && n.trim()) {
         myName = n.trim().substring(0, 15);
-        setStore('pmr_name', myName);
+        setStore('pmr_uname', myName);
         $('navUsername').innerText = myName;
         $('usernameInput').value = myName;
+        announcePresence();
       }
     }
 
-    function checkName() {
+    function initName() {
       if (!myName) {
-        const inputVal = $('usernameInput') ? $('usernameInput').value.trim() : '';
-        myName = inputVal ? inputVal.substring(0, 15) : ('Agent_' + Math.floor(100 + Math.random() * 900));
-        setStore('pmr_name', myName);
+        const val = $('usernameInput').value.trim();
+        myName = val ? val.substring(0, 15) : ('Agent_' + Math.floor(100 + Math.random() * 900));
+        setStore('pmr_uname', myName);
       }
-      if ($('usernameInput')) $('usernameInput').value = myName;
-      if ($('navUsername')) $('navUsername').innerText = myName;
+      $('usernameInput').value = myName;
+      $('navUsername').innerText = myName;
     }
 
     // ==========================================
-    // 1. CREATE ROOM (HOST) — INSTANT ACTION!
+    // PURE NATIVE HTTP PUB/SUB (ZERO LIBRARIES)
     // ==========================================
-    function handleCreateRoom() {
-      checkName();
-      isHost = true;
-      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-      let rand = '';
-      for (let i = 0; i < 4; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
-      roomCode = rand;
+    const SYNC_URL = 'https://ntfy.sh/pmr1_rm_';
 
-      // 1. INSTANT PAGE FLIP: 0-second delay guaranteed!
-      roomState.code = roomCode;
-      roomState.hostId = myId;
-      roomState.players = [{ id: myId, name: myName, ready: true, score: 0 }];
-      updateLobbyUI();
-      switchScreen('lobbyScreen');
+    function postEvent(data) {
+      data.senderId = myId;
+      fetch(SYNC_URL + roomCode, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }).catch(() => {});
+    }
 
-      // 2. Start Sync
-      initRoomNetwork(roomCode);
+    function startListening(code) {
+      const sse = new EventSource(SYNC_URL + code + '/sse');
+      sse.onmessage = (e) => {
+        try {
+          const env = JSON.parse(e.data);
+          if (env.event === 'message' && env.message) {
+            const data = JSON.parse(env.message);
+            if (isHost) handleHostEvent(data);
+            else handleClientEvent(data);
+          }
+        } catch(err) {}
+      };
+    }
+
+    // Host Handler
+    function handleHostEvent(msg) {
+      if (msg.senderId === myId) return;
+
+      if (msg.type === 'JOIN') {
+        let p = roomState.players.find(x => x.id === msg.player.id);
+        if (!p) {
+          roomState.players.push({ id: msg.player.id, name: msg.player.name, ready: true, score: 0 });
+        }
+        postEvent({ type: 'SYNC', state: roomState });
+        updateRoster();
+      }
+
+      if (msg.type === 'SUBMIT') {
+        roomState.subs[msg.playerId] = { id: msg.playerId, name: msg.name, blocks: msg.blocks };
+        const done = Object.keys(roomState.subs).length;
+        postEvent({ type: 'SUB_COUNT', done, total: roomState.players.length });
+        $('doneCount').innerText = `${done}/${roomState.players.length} Done`;
+
+        if (done >= roomState.players.length) {
+          clearInterval(timerInt);
+          judgeMission();
+        }
+      }
+    }
+
+    // Client Handler
+    function handleClientEvent(msg) {
+      if (msg.type === 'SYNC') {
+        roomState = msg.state;
+        updateRoster();
+      }
+      if (msg.type === 'START_ROUND') {
+        roomState = msg.state;
+        startRoundUI(msg.ch, msg.round);
+      }
+      if (msg.type === 'TIMER_TICK') {
+        updateTimer(msg.t);
+      }
+      if (msg.type === 'SUB_COUNT') {
+        $('doneCount').innerText = `${msg.done}/${msg.total} Done`;
+      }
+      if (msg.type === 'SHOW_RESULTS') {
+        showResults(msg.results, msg.round, msg.isFinal);
+      }
+      if (msg.type === 'MATCH_OVER') {
+        showWinner(msg.winner);
+      }
+    }
+
+    function announcePresence() {
+      if (!isHost && roomCode) {
+        postEvent({ type: 'JOIN', player: { id: myId, name: myName } });
+      }
+    }
+
+    function updateRoster() {
+      $('roomCodeDisplay').innerText = roomState.code;
+      $('playersList').innerHTML = roomState.players.map(p => `
+        <div class="player-row">
+          <span>${p.id === roomState.hostId ? '👑 ' : ''}${escapeHtml(p.name)} ${p.id === myId ? '(You)' : ''}</span>
+          <span style="color:var(--success);font-size:12px;">🟢 CONNECTED</span>
+        </div>
+      `).join('');
+
+      if (isHost) {
+        if (roomState.players.length >= 2) {
+          $('startGameBtn').style.display = 'block';$('waitingNotice').style.display = 'none';
+        } else {
+          $('startGameBtn').style.display = 'none';$('waitingNotice').style.display = 'block';
+        }
+      } else {
+        $('startGameBtn').style.display = 'none';$('waitingNotice').innerText = '🟢 Connected! Host ke game start karne ka intezar hai...';
+      }
+    }
+
+    // Share Functions
+    function copyShareLink() {
+      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => showToast('✅ Link Copied!'));
+      } else {
+        prompt('Copy link:', url);
+      }
+    }
+
+    function shareWhatsApp() {
+      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
+      const text = encodeURIComponent(`Bhai Mystery Room 1 mein aao, saath mein solve karte hain!\nIs link par click karke direct join karo:\n${url}`);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
     // ==========================================
-    // 2. JOIN ROOM (CLIENT)
+    // GAMEPLAY
     // ==========================================
-    function handleJoinRoom(customCode) {
-      checkName();
-      let code = customCode || $('joinCodeInput').value.trim().toUpperCase().replace('MR-', '');
-      if (!code) return alert('Pehle 4-digit Room Code daalein!');
-      isHost = false;
-      room
+    function handleStartGame() {
+      if (!isHost) return;
+      hostStartRound();
+    }
+
+    function hostStartRound() {
+      roomState.round++;
+      roomState.subs = {};
+      const ch = CHALLENGES[(roomState.round - 1) % CHALLENGES.length];
+      roomState.time = 180;
+
+      postEvent({ type: 'START_ROUND', state: roomState, ch, round: roomState.round });
+      startRoundUI(ch, roomState.round);
+
+      clearInterval(timerInt);
+      timerInt = setInterval(() => {
+        roomState.time--;
+        postEvent({ type: 'TIMER_TICK', t: roomState.time });
+        updateTimer(roomState.time);
+        if (roomState.time <= 0) {
+          clearInterval(timerInt);
+          judgeMission();
+        }
+      }, 1000);
+    }
+
+    function startRoundUI(ch, round) {
+      switchView('gameView');
+      $('roundNum').innerText = round;
+      $('challengeCat').innerText = ch.cat;
+      $('challengeTitle').innerText = ch.title;
+      $('challengePrompt').innerText = ch.prompt;
+      $('doneCount').innerText = `0/${roomState.players.length} Done`;
+
+      $('chipsTray').innerHTML = ch.chips.map(chipText => `
+        <button class="jugaad-chip" onclick="injectChip('${escapeHtml(chipText)}')">+ ${chipText}</button>
+      `).join('');
+
+      currentBlocks = [
+        { type: "Masterstroke Idea", text: "" },
+        { type: "Ground Action", text: "" },
+        { type: "Zero-Budget Hack", text: "" }
+      ];
+      renderBlocks();
+
+      $('submitBtn').disabled = false;
+      $('submitBtn').innerText = '🔒 LOCK & SUBMIT STRATEGY';
+    }
+
+    window.injectChip = function(text) {
+      let empty = currentBlocks.find(b => !b.text.trim());
+      if (empty) {
+        empty.text = text;
+      } else {
+        currentBlocks[0].text += (currentBlocks[0].text ? ', ' : '') + text;
+      }
+      renderBlocks();
+      showToast('Idea Added!');
+    };
+
+    function renderBlocks() {
+      $('blocksContainer').innerHTML = currentBlocks.map((b, i) => `
+        <div class="strategy-card">
+          <div style="font-size:12px;font-weight:800;color:var(--cyan);margin-bottom:6px;">⚡ ${b.type.toUpperCase()}</div>
+          <textarea class="strategy-textarea" placeholder="Apna plan likhein ya upar chip t
+          
