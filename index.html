@@ -6,14 +6,14 @@
   <title>MYSTERY ROOM 1 — PRABAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
   
   <style>
     :root {
       --bg-dark: #071427;
       --panel-bg: rgba(13, 30, 58, 0.85);
-      --panel-border: rgba(31, 107, 255, 0.3);
+      --panel-border: rgba(31, 107, 255, 0.28);
       --primary-blue: #1F6BFF;
       --cyan-glow: #00F0FF;
       --gold-glow: #FFD54A;
@@ -28,49 +28,124 @@
     .orb-1 { width: 250px; height: 250px; background: rgba(31, 107, 255, 0.2); top: -40px; left: -40px; }
     .orb-2 { width: 250px; height: 250px; background: rgba(0, 240, 255, 0.12); bottom: 0; right: -40px; }
 
-    .app-container { max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
+    .app-container { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
     .glass-panel, .glass-card {
       background: var(--panel-bg);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--panel-border);
       border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
     }
+
+    /* Top Bar */
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
     .brand-badge { background: linear-gradient(135deg, var(--primary-blue), #00c3ff); font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
     .brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-left: 6px; }
-    .room-badge { background: rgba(0, 0, 0, 0.4); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12px; display: flex; align-items: center; gap: 6px; }
-    .room-badge b { color: var(--cyan-glow); font-family: monospace; font-size: 14px; }
+    .profile-pill {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .edit-btn { background: none; border: none; color: var(--cyan-glow); cursor: pointer; font-size: 11px; }
 
     .screen { display: none; }
     .screen.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    .hero-card { text-align: center; padding: 28px 16px; margin-top: 10px; }
-    .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-    .headline { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
-    .subtext { color: var(--text-dim); font-size: 13px; margin-bottom: 22px; }
+    /* Home UI */
+    .hero-card { text-align: center; padding: 22px 16px; }
+    .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .headline { font-size: 20px; font-weight: 800; margin-bottom: 6px; line-height: 1.3; }
+    .subtext { color: var(--text-dim); font-size: 12px; margin-bottom: 18px; }
 
-    input[type="text"] {
-      width: 100%;
-      padding: 13px 14px;
+    .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary-blue), #1855ca); color: #fff; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-gold { background: linear-gradient(135deg, #FFD54A, #e6a817); color: #071427; font-weight: 800; }
+    .btn-danger { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); color: #fca5a5; }
+
+    .join-group { display: flex; gap: 8px; margin-top: 10px; }
+    .join-group input {
+      flex: 1;
+      padding: 12px 14px;
       background: rgba(5, 15, 30, 0.9);
       border: 1px solid var(--panel-border);
       border-radius: 10px;
       color: #fff;
       font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
       outline: none;
-      margin-bottom: 12px;
     }
-    input[type="text"]:focus { border-color: var(--primary-blue); }
+    .join-group button { width: auto; padding: 0 18px; white-space: nowrap; }
 
-    .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; transition: 0.2s; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary-blue), #1855ca); color: #fff; margin-bottom: 8px; }
-    .btn-secondary { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
-    .btn-gold { background: linear-gradient(135deg, #FFD54A, #e6a817); color: #071427; font-weight: 800; }
-    .btn-large { padding: 15px; font-size: 15px; margin-top: 12px; }
+    /* Online Players Radar Box */
+    .radar-card { margin-top: 4px; }
+    .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .radar-title { font-size: 13px; font-weight: 700; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+    .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .online-players-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+    .online-player-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(8, 20, 38, 0.85);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      border-radius: 10px;
+    }
+    .online-player-name { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .invite-btn {
+      background: linear-gradient(135deg, rgba(31, 107, 255, 0.3), rgba(0, 240, 255, 0.2));
+      border: 1px solid var(--cyan-glow);
+      color: var(--cyan-glow);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .empty-radar { text-align: center; color: var(--text-dim); font-size: 12px; padding: 18px 0; font-style: italic; }
+
+    /* Invitation Modal Popup */
+    .invite-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 20, 39, 0.94);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .invite-modal.active { display: flex !important; animation: popIn 0.25s ease; }
+    @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .invite-box {
+      background: rgba(13, 30, 58, 0.98);
+      border: 2px solid var(--gold-glow);
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      max-width: 340px;
+      width: 100%;
+    }
+    .invite-avatar { font-size: 38px; margin-bottom: 8px; }
+    .invite-text { font-size: 15px; margin: 10px 0 18px; line-height: 1.4; color: #fff; }
+    .invite-actions { display: flex; gap: 10px; }
+
+    /* Lobby & In-Game Styles */
+    .room-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .room-badge-large { background: rgba(0,0,0,0.4); border: 1px solid var(--cyan-glow); padding: 6px 12px; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
+    .room-badge-large b { color: var(--cyan-glow); font-family: monospace; font-size: 16px; }
+    .copy-pill-btn { background: var(--primary-blue); border: none; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
 
     .players-grid { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
     .player-chip { display: flex; justify-content: space-between; align-items: center; background: rgba(13, 30, 58, 0.9); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
@@ -85,36 +160,18 @@
     .challenge-category { font-size: 10px; font-weight: 800; color: var(--cyan-glow); text-transform: uppercase; margin-bottom: 4px; }
     .challenge-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
     .challenge-prompt { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
-    .gyani-hints { background: rgba(0,0,0,0.3); border: 1px dashed rgba(255,213,74,0.3); padding: 8px 12px; border-radius: 8px; font-size: 12px; }
-    .gyani-hints summary { font-weight: 700; color: var(--gold-glow); cursor: pointer; }
 
     .block-palette { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin: 10px 0; }
     .palette-chip { background: rgba(13,30,58,0.9); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-
     .strategy-block { background: rgba(9, 21, 41, 0.95); border-left: 3px solid var(--primary-blue); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
     .block-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .block-type-tag { font-size: 11px; font-weight: 700; color: var(--cyan-glow); }
-    .block-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; }
+    .block-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; cursor: pointer; }
     .block-btn.delete { color: var(--danger); }
     .block-input-title { width: 100%; background: transparent; border: none; font-size: 13px; font-weight: 700; color: #fff; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 2px; margin-bottom: 6px; }
     .block-textarea { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; color: #fff; font-size: 12px; min-height: 48px; outline: none; }
 
-    /* OVERLAY FIX: By-default display: none rahega */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(7, 20, 39, 0.96);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 16px;
-      text-align: center;
-    }
-    .modal-overlay.active {
-      display: flex !important;
-    }
-
+    /* Results */
     .honorary-badge { display: inline-block; background: rgba(255, 213, 74, 0.15); color: var(--gold-glow); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
     .score-bar-row { display: flex; align-items: center; font-size: 11px; gap: 8px; margin-top: 4px; }
     .score-bar-label { width: 85px; color: var(--text-dim); }
@@ -122,6 +179,28 @@
     .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-blue), var(--cyan-glow)); }
     .lb-row { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 13px; margin-bottom: 6px; }
     .lb-row.top-1 { border: 1px solid rgba(255,213,74,0.3); background: rgba(255,213,74,0.1); font-weight: 700; }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 185, 129, 0.95);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 2000;
+    }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(7, 20, 39, 0.96); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; text-align: center;
+    }
+    .modal-overlay.active { display: flex !important; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -130,45 +209,84 @@
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
 
+  <!-- Toast Notice -->
+  <div id="toast" class="toast">Link Copied!</div>
+
+  <!-- INVITATION POPUP MODAL -->
+  <div id="inviteModal" class="invite-modal">
+    <div class="invite-box">
+      <div class="invite-avatar">🎮</div>
+      <h3 style="color:var(--gold-glow); font-size:17px;">Mission Invitation</h3>
+      <p id="inviteModalText" class="invite-text"><b>Operative</b> has invited you to Mystery Room!</p>
+      <div class="invite-actions">
+        <button id="declineInviteBtn" class="btn btn-danger">Decline</button>
+        <button id="acceptInviteBtn" class="btn btn-gold">Accept & Join</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container">
     <header class="navbar glass-panel">
       <div>
         <span class="brand-badge">PRABAL</span>
         <span class="brand-title">MYSTERY ROOM <span style="color:var(--gold-glow)">1</span></span>
       </div>
-      <div id="roomBadge" class="room-badge hidden">
-        <span>ROOM</span>
-        <b id="displayRoomCode">MR-0000</b>
-        <button id="copyCodeBtn" style="background:none;border:none;color:#fff;cursor:pointer;">📋</button>
+      <div class="profile-pill">
+        <span id="headerUsername">Operative</span>
+        <button id="editUsernameBtn" class="edit-btn" title="Change name">✏️</button>
       </div>
     </header>
 
-    <!-- 1. ENTRY SCREEN -->
+    <!-- 1. HOME SCREEN -->
     <main id="authScreen" class="screen active">
       <div class="hero-card glass-card">
-        <div class="tagline">"Think Different. Solve Better."</div>
-        <h1 class="headline">Multiplayer Creative Problem Solving</h1>
-        <p class="subtext">Real-world crises. Unlimited strategy. Serverless multiplayer.</p>
-        
-        <input type="text" id="usernameInput" placeholder="Apna Codename Likhein" maxlength="15" />
-        <button id="createRoomBtn" class="btn btn-primary">✨ Create Room (Host)</button>
-        <div style="margin: 12px 0; color: var(--text-dim); font-size: 11px;">— YA ROOM CODE ENTER KAREIN —</div>
-        <input type="text" id="joinCodeInput" placeholder="Room Code Daalein (e.g. 7X92)" maxlength="6" />
-        <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+        <div class="tagline">"Same Problem. Different Minds."</div>
+        <h1 class="headline">Creative Problem Solving</h1>
+        <p class="subtext">Compete in real-time strategic problem solving</p>
+
+        <!-- Quick Create -->
+        <button id="createRoomBtn" class="btn btn-primary" style="padding:14px;font-size:15px;">
+          ✨ Create New Room (Host)
+        </button>
+
+        <!-- Clean Join Box -->
+        <div class="join-group">
+          <input type="text" id="joinCodeInput" placeholder="Room Code (e.g. 7X92)" maxlength="8" />
+          <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+        </div>
       </div>
+
+      <!-- ACTIVE OPERATIVES RADAR -->
+      <section class="glass-card radar-card">
+        <div class="radar-header">
+          <span class="radar-title">
+            <span class="radar-pulse"></span>
+            ACTIVE OPERATIVES ONLINE
+          </span>
+          <span id="onlineCountBadge" style="font-size:11px;color:var(--cyan-glow);font-weight:700;">Scanning...</span>
+        </div>
+        <div id="onlinePlayersList" class="online-players-list">
+          <div class="empty-radar">Searching for active players...</div>
+        </div>
+      </section>
     </main>
 
     <!-- 2. LOBBY SCREEN -->
     <main id="lobbyScreen" class="screen">
       <div class="glass-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="room-header-bar">
           <div>
             <span style="color:var(--success);font-size:11px;font-weight:700;">🟢 LOBBY READY</span>
-            <h2 style="font-size:18px;">Operatives Room</h2>
+            <h2 style="font-size:18px;">Chamber Lobby</h2>
           </div>
-          <button id="shareLinkBtn" class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:11px;">+ Share Link</button>
+          <div class="room-badge-large">
+            <b id="displayRoomCode">MR-0000</b>
+            <button id="copyFullLinkBtn" class="copy-pill-btn">📋 Copy Link</button>
+          </div>
         </div>
+
         <div id="playersList" class="players-grid"></div>
+
         <button id="readyToggleBtn" class="btn btn-secondary">CLICK READY</button>
         <button id="startGameBtn" class="btn btn-gold hidden">START MISSION</button>
       </div>
@@ -177,7 +295,7 @@
     <!-- 3. GAME SCREEN -->
     <main id="gameScreen" class="screen">
       <div class="game-top-bar glass-panel">
-        <div>ROUND <b id="currentRoundDisplay" style="color:var(--cyan-glow);">1</b>/5</div>
+        <div>ROUND <b id="currentRoundDisplay" style="color:var(--cyan-glow);">1</b>/3</div>
         <div id="timerDisplay" class="timer-box">03:00</div>
         <div id="submissionCounter" style="color:var(--text-dim);">0/2 Done</div>
       </div>
@@ -186,14 +304,14 @@
         <div class="challenge-category" id="challengeCategory">Environment</div>
         <h2 class="challenge-title" id="challengeTitle">Loading...</h2>
         <p class="challenge-prompt" id="challengePrompt"></p>
-        <details class="gyani-hints">
-          <summary>🧠 Need Guidance? Ask PRABAL GYANI</summary>
-          <p style="padding-top:6px;color:var(--text-dim);">💡 Tip: Problem ka root cause pehchano aur multiple blocks (Idea, Action, Budget) jodkar complete solution banao.</p>
+        <details class="gyani-hints" style="margin-top:10px;">
+          <summary style="color:var(--gold-glow);font-weight:700;font-size:12px;cursor:pointer;">🧠 Ask PRABAL GYANI for Hint</summary>
+          <p style="padding-top:6px;color:var(--text-dim);font-size:12px;">Problem ka root cause pakad kar Idea + Action + Budget blocks jodo!</p>
         </details>
       </section>
 
       <section>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px;">Add Strategy Blocks:</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Add Solution Blocks:</div>
         <div class="block-palette" id="blockPalette">
           <button class="palette-chip" data-type="Idea">💡 Idea</button>
           <button class="palette-chip" data-type="Action">⚙️ Action</button>
@@ -203,15 +321,15 @@
           <button class="palette-chip" data-type="Risk">⚠️ Risk</button>
         </div>
         <div id="canvasBlocks"></div>
-        <button id="submitSolutionBtn" class="btn btn-primary btn-large">🔒 LOCK & SUBMIT SOLUTION</button>
+        <button id="submitSolutionBtn" class="btn btn-primary" style="padding:15px;margin-top:12px;font-size:15px;">🔒 LOCK & SUBMIT SOLUTION</button>
       </section>
     </main>
 
-    <!-- 4. JUDGING OVERLAY (Ab theek se chhipa rahega jab tak sab submit na karein) -->
+    <!-- 4. JUDGING OVERLAY -->
     <div id="judgingOverlay" class="modal-overlay">
       <div class="glass-card" style="max-width:320px;">
         <h2 style="color:var(--gold-glow);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
-        <p style="font-size:12px;color:var(--text-dim);">Serverless engine solutions ka logic, practicality aur originality evaluate kar raha hai...</p>
+        <p style="font-size:12px;color:var(--text-dim);">Evaluating creativity, logic & practicality...</p>
       </div>
     </div>
 
@@ -225,13 +343,12 @@
         <div class="glass-panel" style="border-left:3px solid var(--gold-glow);margin-bottom:12px;">
           <span class="honorary-badge" id="myHonoraryTitle">🧠 Dimaag Ka Don</span>
           <h3 id="myTotalRoundScore" style="font-size:16px;">Score: 85/100</h3>
-          <div id="similarityWarning" class="hidden" style="color:#fca5a5;font-size:11px;margin:4px 0;">⚠️ High Pattern Similarity</div>
           <div id="scoreBarsGrid" style="margin-top:8px;"></div>
         </div>
         <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Round Leaderboard:</h3>
         <div id="roundLeaderboardList"></div>
         <button id="nextRoundBtn" class="btn btn-gold hidden" style="margin-top:14px;">NEXT ROUND ➔</button>
-        <p id="waitingHostNotice" style="font-size:12px;color:var(--text-dim);text-align:center;margin-top:10px;">Host agla round shuru karne wala hai...</p>
+        <p id="waitingHostNotice" style="font-size:12px;color:var(--text-dim);text-align:center;margin-top:10px;">Waiting for host to proceed...</p>
       </div>
     </main>
 
@@ -239,10 +356,10 @@
     <main id="gameOverScreen" class="screen">
       <div class="glass-card" style="text-align:center;padding:30px 16px;">
         <div style="font-size:48px;">🏆</div>
-        <div style="font-size:11px;font-weight:800;color:var(--cyan-glow);letter-spacing:1px;">MYSTERY ROOM COMPLETE</div>
+        <div style="font-size:11px;font-weight:800;color:var(--cyan-glow);letter-spacing:1px;">MATCH CONCLUDED</div>
         <h1 id="winnerName" style="font-size:24px;margin:6px 0;">Operative</h1>
         <p id="winnerHonorary" style="color:var(--gold-glow);font-size:15px;font-weight:700;margin-bottom:10px;">"🧠 Dimaag Ka Don"</p>
-        <div id="winnerFinalScore" style="font-size:28px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:18px;">427 / 500</div>
+        <div id="winnerFinalScore" style="font-size:28px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:18px;">0 / 300</div>
         <div id="finalLeaderboardList" style="text-align:left;margin-bottom:16px;"></div>
         <button onclick="location.reload()" class="btn btn-primary">PLAY AGAIN</button>
       </div>
@@ -251,259 +368,11 @@
 
   <script>
     const CHALLENGES_DB = [
-      { id: 101, category: "Environment", title: "City Plastic Waste Crisis", prompt: "Aapke shahar mein roz 200 ton plastic kachra nikalta hai. Budget bohot kam hai. Ek realistic self-sustaining system design karein jisse log plastic road par na phenkein.", keywords: ["plastic", "waste", "recycle", "shopkeeper", "deposit", "reward", "incentive"] },
-      { id: 102, category: "Education", title: "Low-Cost Rural Learning", prompt: "Ek door ke gaaon mein bar-bar light chali jaati hai aur internet connection nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka engaging learning ecosystem banayein.", keywords: ["offline", "solar", "community", "peer", "radio", "mentor", "local"] },
-      { id: 103, category: "Hostel Life", title: "Hostel Water & Power Conservation", prompt: "600 students ke hostel mein paani aur bijli ki bhari wastage ho rahi hai. Strict fine lagaye bina ek student-led behavioral ya jugaad system design karein.", keywords: ["meter", "gamification", "sensor", "competition", "floor", "incentive"] }
+      { id: 101, category: "Environment", title: "City Plastic Waste Crisis", prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Budget bohot kam hai. Ek realistic self-sustaining system design karein jisse log plastic road par na phenkein." },
+      { id: 102, category: "Education", title: "Low-Cost Rural Learning Hub", prompt: "Door ke gaaon mein bijli bar-bar jaati hai aur internet nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka interactive learning system banayein." },
+      { id: 103, category: "Urban Life", title: "Traffic & Pollution Gridlock", prompt: "School & office peak hours par central chowk 90 minute jam rehta hai. Heritage buildings ki wajah se road chaudi nahi ho sakti. Traffic flow ka smart jugaad banayein." }
     ];
 
-    let peer = null, hostConn = null, clientConns = [], isHost = false;
-    let myPlayerId = 'p_' + Math.random().toString(36).substr(2, 6);
-    let myUsername = '', roomCode = '';
-    let roomState = { code: '', hostId: '', players: [], currentRound: 0, totalRounds: 3, usedIds: [], submissions: {}, timeLeft: 180 };
-    let localBlocks = [], timerInterval = null;
-
-    const $ = id => document.getElementById(id);
-    function switchScreen(el) {
-      ['authScreen', 'lobbyScreen', 'gameScreen', 'roundResultsScreen', 'gameOverScreen'].forEach(id => $(id).classList.remove('active'));$('judgingOverlay').classList.remove('active');
-      if (el) el.classList.add('active');
-    }
-
-    $('createRoomBtn').onclick = () => {
-      myUsername = $('usernameInput').value.trim();
-      if (!myUsername) return alert('Pehle apna Codename likhein!');
-      isHost = true;
-      const rand = Math.random().toString(36).substr(2, 4).toUpperCase();
-      roomCode = 'MR-' + rand;
-      peer = new Peer('prabal-mr-' + rand.toLowerCase());
-
-      peer.on('open', () => {
-        roomState.code = roomCode;
-        roomState.hostId = myPlayerId;
-        roomState.players = [{ id: myPlayerId, username: myUsername, isReady: true, totalScore: 0, roundScores: [] }];
-        updateLobby();
-        switchScreen($('lobbyScreen'));
-      });
-
-      peer.on('connection', conn => {
-        clientConns.push(conn);
-        conn.on('data', data => handleHostData(conn, data));
-        conn.on('close', () => {
-          clientConns = clientConns.filter(c => c !== conn);
-          roomState.players = roomState.players.filter(p => p.id !== conn.peer);
-          broadcast({ type: 'SYNC', roomState });
-          updateLobby();
-        });
-      });
-      peer.on('error', err => alert('Room banane mein issue aaya. Dobara try karein!'));
-    };
-
-    $('joinRoomBtn').onclick = () => {
-      myUsername = $('usernameInput').value.trim();
-      let code = $('joinCodeInput').value.trim().toUpperCase();
-      if (!myUsername || !code) return alert('Username aur Room Code dono zaroori hain!');
-      if (!code.startsWith('MR-')) code = 'MR-' + code;
-      roomCode = code;
-
-      isHost = false;
-      peer = new Peer();
-      peer.on('open', () => {
-        hostConn = peer.connect('prabal-mr-' + code.replace('MR-', '').toLowerCase());
-        hostConn.on('open', () => {
-          hostConn.send({ type: 'JOIN', id: myPlayerId, username: myUsername });
-        });
-        hostConn.on('data', data => handleClientData(data));
-      });
-      peer.on('error', () => alert('Room nahi mila. Check karein ki Host room bana chuka hai ya nahi!'));
-    };
-
-    function broadcast(data) { clientConns.forEach(c => { if(c.open) c.send(data); }); }
-
-    function handleHostData(conn, msg) {
-      if (msg.type === 'JOIN') {
-        roomState.players.push({ id: msg.id, username: msg.username, isReady: false, totalScore: 0, roundScores: [] });
-        broadcast({ type: 'SYNC', roomState });
-        updateLobby();
-      }
-      if (msg.type === 'READY') {
-        const p = roomState.players.find(x => x.id === msg.id);
-        if (p) p.isReady = !p.isReady;
-        broadcast({ type: 'SYNC', roomState });
-        updateLobby();
-      }
-      if (msg.type === 'SUBMIT') {
-        roomState.submissions[msg.id] = { id: msg.id, username: msg.username, blocks: msg.blocks };
-        const count = Object.keys(roomState.submissions).length;
-        broadcast({ type: 'SUB_COUNT', count, total: roomState.players.length });
-        $('submissionCounter').innerText = `${count}/${roomState.players.length} Done`;
-        if (count >= roomState.players.length) { clearInterval(timerInterval); runJudge(); }
-      }
-    }
-
-    function handleClientData(msg) {
-      if (msg.type === 'SYNC') { roomState = msg.roomState; updateLobby(); switchScreen($('lobbyScreen')); }
-      if (msg.type === 'START') { roomState = msg.roomState; startRoundUI(msg.ch, msg.round); }
-      if (msg.type === 'TICK') { updateTimer(msg.t); }
-      if (msg.type === 'SUB_COUNT') { $('submissionCounter').innerText = `${msg.count}/${msg.total} Done`; }
-      if (msg.type === 'JUDGING') { $('judgingOverlay').classList.add('active'); }
-      if (msg.type === 'RESULTS') { $('judgingOverlay').classList.remove('active'); showResults(msg.results, msg.round, msg.isFinal); }
-      if (msg.type === 'OVER') { showGameOver(msg.winner, msg.lb); }
-    }
-
-    $('readyToggleBtn').onclick = () => { if (!isHost && hostConn) hostConn.send({ type: 'READY', id: myPlayerId }); };$('startGameBtn').onclick = () => {
-      if (!isHost) return;
-      if (roomState.players.length < 2) return alert('Kam se kam 2 players chahiye!');
-      hostStartRound();
-    };
-
-    function updateLobby() {
-      $('roomBadge').classList.remove('hidden');$('displayRoomCode').innerText = roomState.code;
-      $('playersList').innerHTML = roomState.players.map(p => `
-        <div class="player-chip ${p.isReady ? 'is-ready' : ''}">
-          <span>${p.id === roomState.hostId ? '👑 ' : ''}${p.username} ${p.id === myPlayerId ? '(You)' : ''}</span>
-          <span class="ready-status ${p.isReady ? 'ready' : 'waiting'}">${p.isReady ? 'READY' : 'WAITING'}</span>
-        </div>
-      `).join('');
-      $('startGameBtn').classList.toggle('hidden', !isHost);$('readyToggleBtn').classList.toggle('hidden', isHost);
-    }
-
-    function hostStartRound() {
-      roomState.currentRound++;
-      roomState.submissions = {};
-      const ch = CHALLENGES_DB[(roomState.currentRound - 1) % CHALLENGES_DB.length];
-      roomState.timeLeft = 180;
-      broadcast({ type: 'START', roomState, ch, round: roomState.currentRound });
-      startRoundUI(ch, roomState.currentRound);
-
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        roomState.timeLeft--;
-        broadcast({ type: 'TICK', t: roomState.timeLeft });
-        updateTimer(roomState.timeLeft);
-        if (roomState.timeLeft <= 0) { clearInterval(timerInterval); runJudge(); }
-      }, 1000);
-    }
-
-    function startRoundUI(ch, round) {
-      switchScreen($('gameScreen'));$('currentRoundDisplay').innerText = round;
-      $('challengeCategory').innerText = ch.category;
-      $('challengeTitle').innerText = ch.title;
-      $('challengePrompt').innerText = ch.prompt;
-      $('submissionCounter').innerText = `0/${roomState.players.length} Done`;
-      $('submitSolutionBtn').disabled = false;
-      $('submitSolutionBtn').innerText = '🔒 LOCK & SUBMIT SOLUTION';
-      localBlocks = [{ type: 'Idea', title: 'Core Strategy', c: '' }, { type: 'Action', title: 'Action Plan', c: '' }];
-      renderCanvas();
-    }
-
-    function updateTimer(t) {
-      const m = Math.floor(t / 60).toString().padStart(2, '0');
-      const s = (t % 60).toString().padStart(2, '0');
-      $('timerDisplay').innerText = `${m}:${s}`;
-    }
-
-    $('blockPalette').onclick = e => {
-      const btn = e.target.closest('.palette-chip');
-      if (!btn) return;
-      localBlocks.push({ type: btn.dataset.type, title: btn.dataset.type + ' Details', c: '' });
-      renderCanvas();
-    };
-
-    function renderCanvas() {
-      $('canvasBlocks').innerHTML = localBlocks.map((b, i) => `
-        <div class="strategy-block">
-          <div class="block-top-row">
-            <span class="block-type-tag">${b.type}</span>
-            <div><button class="block-btn delete" onclick="localBlocks.splice(${i},1);renderCanvas();">✕</button></div>
-          </div>
-          <input class="block-input-title" value="${b.title}" oninput="localBlocks[${i}].title=this.value">
-          <textarea class="block-textarea" placeholder="Apna plan likhein..." oninput="localBlocks[${i}].c=this.value">${b.c}</textarea>
-        </div>
-      `).join('');
-    }
-
-    $('submitSolutionBtn').onclick = () => {$('submitSolutionBtn').disabled = true;
-      $('submitSolutionBtn').innerText = '✅ LOCKED! WAITING...';
-      if (isHost) {
-        roomState.submissions[myPlayerId] = { id: myPlayerId, username: myUsername, blocks: localBlocks };
-        const count = Object.keys(roomState.submissions).length;
-        broadcast({ type: 'SUB_COUNT', count, total: roomState.players.length });
-        $('submissionCounter').innerText = `${count}/${roomState.players.length} Done`;
-        if (count >= roomState.players.length) { clearInterval(timerInterval); runJudge(); }
-      } else {
-        hostConn.send({ type: 'SUBMIT', id: myPlayerId, username: myUsername, blocks: localBlocks });
-      }
-    };
-
-    function runJudge() {
-      broadcast({ type: 'JUDGING' });
-      $('judgingOverlay').classList.add('active');
-      setTimeout(() => {
-        const results = roomState.players.map(p => {
-          const sub = roomState.submissions[p.id] || { blocks: [] };
-          const txt = sub.blocks.map(b => b.c).join(' ');
-          let sc = 65 + Math.min(25, txt.length > 30 ? 20 : 10) + Math.floor(Math.random() * 10);
-          p.totalScore += sc;
-          let title = sc >= 88 ? '🧠 Dimaag Ka Don' : (sc >= 80 ? '💡 Idea Baaz' : '⚙️ Jugaad Architect');
-          return { id: p.id, username: p.username, score: sc, title, total: p.totalScore };
-        });
-        results.sort((a,b) => b.score - a.score);
-        const isFinal = roomState.currentRound >= roomState.totalRounds;
-        broadcast({ type: 'RESULTS', results, round: roomState.currentRound, isFinal });
-        $('judgingOverlay').classList.remove('active');
-        showResults(results, roomState.currentRound, isFinal);
-      }, 2000);
-    }
-
-    function showResults(results, round, isFinal) {
-      switchScreen($('roundResultsScreen'));$('resultsRoundBadge').innerText = `Round ${round} of ${roomState.totalRounds}`;
-      const me = results.find(r => r.id === myPlayerId) || results[0];
-      $('myHonoraryTitle').innerText = me.title;
-      $('myTotalRoundScore').innerText = `Score: ${me.score} / 100`;
-      $('scoreBarsGrid').innerHTML = `
-        <div class="score-bar-row"><span class="score-bar-label">Creativity</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${me.score}%"></div></div><span>${Math.round(me.score/5)}/20</span></div>
-        <div class="score-bar-row"><span class="score-bar-label">Practicality</span><div class="score-bar-track"><div class="score-bar-fill" style="width:85%"></div></div><span>17/20</span></div>
-        <div class="score-bar-row"><span class="score-bar-label">Logic</span><div class="score-bar-track"><div class="score-bar-fill" style="width:90%"></div></div><span>18/20</span></div>
-      `;
-      $('roundLeaderboardList').innerHTML = results.map((r, i) => `
-        <div class="lb-row ${i === 0 ? 'top-1' : ''}">
-          <span>${i === 0 ? '🥇' : '#' + (i + 1)} <b>${r.username}</b> <small>(${r.title})</small></span>
-          <b>+${r.score} pts</b>
-        </div>
-      `).join('');
-
-      $('nextRoundBtn').classList.toggle('hidden', !isHost);
-      $('waitingHostNotice').classList.toggle('hidden', isHost);$('nextRoundBtn').innerText = isFinal ? '🏆 VIEW WINNER' : 'NEXT ROUND ➔';
-      $('nextRoundBtn').onclick = () => {
-        if (isFinal) {
-          const lb = [...roomState.players].sort((a,b) => b.totalScore - a.totalScore);
-          broadcast({ type: 'OVER', winner: lb[0], lb });
-          showGameOver(lb[0], lb);
-        } else {
-          hostStartRound();
-        }
-      };
-    }
-
-    function showGameOver(winner, lb) {
-      switchScreen($('gameOverScreen'));$('winnerName').innerText = winner.username;
-      $('winnerFinalScore').innerText = `${winner.totalScore} / ${roomState.totalRounds * 100} PTS`;
-      $('finalLeaderboardList').innerHTML = lb.map((p, i) => `
-        <div class="lb-row ${i === 0 ? 'top-1' : ''}">
-          <span>${i === 0 ? '👑' : '#' + (i + 1)} <b>${p.username}</b></span>
-          <b>${p.totalScore} Total PTS</b>
-        </div>
-      `).join('');
-    }
-
-    $('copyCodeBtn').onclick = () => { navigator.clipboard.writeText(roomCode); alert('Room Code copied: ' + roomCode); };$('shareLinkBtn').onclick = () => {
-      const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      prompt('Yeh link apne doston ko bhejein:', url);
-    };
-
-    window.onload = () => {
-      const r = new URLSearchParams(window.location.search).get('room');
-      if (r) $('joinCodeInput').value = r.replace('MR-', '');
-    };
-  </script>
-</body>
-</html>
+    // Presence & App State
+    let myPlayerId = localStorage.getItem('prabal_mr_pid');
+    
