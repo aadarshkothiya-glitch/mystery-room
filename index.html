@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>MYSTERY ROOM 1 — PRABAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <!-- Ultra-Reliable WSS MQTT Engine -->
+  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
 
   <style>
     :root {
       --bg: #060f1f;
-      --card-bg: rgba(13, 29, 56, 0.85);
+      --card-bg: rgba(13, 29, 56, 0.88);
       --card-border: rgba(31, 107, 255, 0.35);
       --primary: #1F6BFF;
-      --primary-hover: #3b7fff;
       --cyan: #00F0FF;
       --gold: #FFD54A;
       --text: #FFFFFF;
@@ -32,19 +33,19 @@
 
     /* Master Container - Mobile & Tablet Responsive */
     .app-container {
-      max-width: 600px;
+      max-width: 620px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
-    /* Tablet Expansion */
+    /* Tablet Cockpit View */
     @media (min-width: 768px) {
-      .app-container { max-width: 960px; padding: 12px; }
-      .home-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-      .lobby-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .game-grid-layout { display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 16px; align-items: start; }
+      .app-container { max-width: 880px; padding: 16px; }
+      .home-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; align-items: start; }
+      .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .game-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
     }
 
     .glass-card {
@@ -61,14 +62,13 @@
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; }
     .brand { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
     .brand-badge { background: linear-gradient(135deg, var(--primary), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
-    .user-tag { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .user-tag { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
-    /* View Switcher */
+    /* Screen Elements */
     .screen { display: none; }
-    .screen.active { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    #authScreen { display: block; } /* First screen open by default */
 
-    /* Inputs & Buttons */
+    /* Buttons */
     .btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px;
@@ -87,13 +87,12 @@
     input[type="text"]:focus { border-color: var(--cyan); }
 
     /* Home Layout */
-    .options-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-    .option-box { background: rgba(7, 18, 38, 0.7); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; }
+    .option-box { background: rgba(7, 18, 38, 0.7); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
 
-    /* Active Players Radar */
+    /* Radar List */
     .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
     .radar-player-row {
       display: flex; justify-content: space-between; align-items: center;
       background: rgba(8, 22, 44, 0.85); border: 1px solid rgba(255,255,255,0.06);
@@ -109,7 +108,7 @@
       background: rgba(0,0,0,0.4); border: 1px solid var(--cyan);
       border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 14px;
     }
-    .code-text-big { font-size: 36px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 3px; }
+    .code-text-big { font-size: 38px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 3px; }
     .player-roster-item {
       display: flex; justify-content: space-between; align-items: center;
       background: rgba(7, 18, 36, 0.9); padding: 12px 14px; border-radius: 10px;
@@ -120,7 +119,7 @@
     .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; font-size: 13px; font-weight: 700; }
     .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 18px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
 
-    /* Jugaad Idea Chips */
+    /* Fast Jugaad Chips */
     .chips-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
     .jugaad-chip {
       background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
@@ -140,25 +139,23 @@
       width: 100%; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 60px; outline: none;
     }
-    .strategy-textarea:focus { border-color: var(--cyan); }
 
-    /* Dossier */
+    /* Opponent Dossier */
     .dossier-card {
       background: rgba(5, 14, 28, 0.95); border: 1px solid var(--card-border);
       border-radius: 12px; padding: 14px; margin-bottom: 10px;
     }
 
-    /* Modal Alerts */
-    .modal-overlay {
+    /* Modal Overlays (Hidden By Default) */
+    .overlay-box {
       position: fixed; inset: 0; background: rgba(5, 12, 24, 0.96);
-      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
+      display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
     }
-    .modal-overlay.active { display: flex !important; }
 
     .toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: var(--success); color: #fff; padding: 9px 20px; border-radius: 20px;
-      font-size: 13px; font-weight: 700; display: none; z-index: 2000;
+      font-size: 13px; font-weight: 700; display: none; z-index: 10000;
     }
   </style>
 </head>
@@ -168,15 +165,15 @@
   <div class="glow-2"></div>
   <div id="toast" class="toast">Link Copied!</div>
 
-  <!-- INVITATION POPUP -->
-  <div id="inviteModal" class="modal-overlay">
+  <!-- DIRECT INVITATION MODAL -->
+  <div id="inviteModal" class="overlay-box">
     <div class="glass-card" style="text-align:center; max-width:340px; width:100%; border:2px solid var(--gold);">
       <div style="font-size:38px;margin-bottom:8px;">🎮</div>
       <h3 style="color:var(--gold);font-size:18px;">Mission Invitation!</h3>
       <p id="inviteModalText" style="margin:10px 0 16px;font-size:14px;line-height:1.4;">Operative invited you!</p>
       <div style="display:flex;gap:10px;">
-        <button id="declineInviteBtn" class="btn btn-secondary" style="border-color:var(--danger);color:#fca5a5;">Decline</button>
-        <button id="acceptInviteBtn" class="btn btn-gold">Accept & Join</button>
+        <button onclick="declineInvite()" class="btn btn-secondary" style="border-color:var(--danger);color:#fca5a5;">Decline</button>
+        <button onclick="acceptInvite()" class="btn btn-gold">Accept & Join</button>
       </div>
     </div>
   </div>
@@ -192,47 +189,46 @@
       </div>
       <div class="user-tag">
         <span id="navUsername">Agent</span>
+        <span onclick="editName()" style="cursor:pointer;color:var(--cyan);margin-left:4px;">✏️</span>
       </div>
     </header>
 
     <!-- 1. HOME SCREEN -->
-    <main id="authScreen" class="screen active">
-      <div class="home-grid-layout">
+    <main id="authScreen" class="screen">
+      <div class="home-grid">
         
-        <!-- Left Column: Name & 2 Big Action Options -->
+        <!-- Left: Codename & 2 Big Action Options -->
         <div class="glass-card">
-          <div style="margin-bottom:12px;">
+          <div style="margin-bottom:14px;">
             <label style="font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;">YOUR CODENAME / NAME:</label>
-            <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" />
+            <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" oninput="saveNameInput()" />
           </div>
 
-          <div class="options-stack">
-            <!-- OPTION 1: CREATE ROOM -->
-            <div class="option-box">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                <span style="font-size:20px;">👑</span>
-                <b style="font-size:15px;">Host a Match</b>
-              </div>
-              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Naya chamber create karein aur dost ko code bhej kar bulayein.</p>
-              <button id="createRoomBtn" class="btn btn-primary">✨ Create Room (Instant)</button>
+          <!-- OPTION 1: CREATE ROOM -->
+          <div class="option-box">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:22px;">👑</span>
+              <b style="font-size:16px;">Host a Match</b>
             </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Instant chamber create karein aur doston ko bulayein.</p>
+            <button onclick="handleCreateRoom()" class="btn btn-primary">✨ Create Room (Instant)</button>
+          </div>
 
-            <!-- OPTION 2: JOIN WITH CODE -->
-            <div class="option-box">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                <span style="font-size:20px;">🎮</span>
-                <b style="font-size:15px;">Join with Code</b>
-              </div>
-              <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Dost ka 4-digit code yahan daalein.</p>
-              <div style="display:flex;gap:8px;">
-                <input type="text" id="joinCodeInput" placeholder="CODE (e.g. 7X92)" maxlength="6" style="margin-bottom:0;text-align:center;font-size:16px;" />
-                <button id="joinRoomBtn" class="btn btn-secondary" style="width:auto;padding:0 20px;white-space:nowrap;">Join</button>
-              </div>
+          <!-- OPTION 2: JOIN WITH CODE -->
+          <div class="option-box">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:22px;">🎮</span>
+              <b style="font-size:16px;">Join with Code</b>
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Dost ka 4-digit code yahan daalein.</p>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="joinCodeInput" placeholder="CODE (e.g. 7X92)" maxlength="6" style="margin-bottom:0;text-align:center;font-size:16px;" />
+              <button onclick="handleJoinRoom()" class="btn btn-secondary" style="width:auto;padding:0 22px;white-space:nowrap;">Join</button>
             </div>
           </div>
         </div>
 
-        <!-- Right Column: Live Scanning Radar -->
+        <!-- Right: Active Online Players Radar -->
         <div class="glass-card">
           <div class="radar-header">
             <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;">
@@ -242,7 +238,7 @@
             <span id="radarCount" style="font-size:11px;color:var(--cyan);font-weight:700;">Scanning...</span>
           </div>
           <div id="radarList" class="radar-list">
-            <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px;">Searching for online players...</div>
+            <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px;">Searching for online players...<br>Dost ko link share karein!</div>
           </div>
         </div>
 
@@ -252,27 +248,25 @@
     <!-- 2. LOBBY SCREEN -->
     <main id="lobbyScreen" class="screen">
       <div class="glass-card">
-        <div class="lobby-grid-layout">
-          <!-- Left: Code & Share Buttons -->
+        <div class="lobby-grid">
           <div>
             <div class="banner-code-box">
               <div style="font-size:11px;color:var(--muted);font-weight:800;">CHAMBER ROOM CODE:</div>
               <div id="roomCodeDisplay" class="code-text-big">----</div>
               <div style="display:flex;gap:8px;margin-top:12px;">
-                <button id="shareWaBtn" class="btn btn-wa">💬 WhatsApp Par Bhejo</button>
-                <button id="copyLinkBtn" class="btn btn-secondary">📋 Copy Link</button>
+                <button onclick="shareWhatsApp()" class="btn btn-wa">💬 WhatsApp Bhejo</button>
+                <button onclick="copyLink()" class="btn btn-secondary">📋 Copy Link</button>
               </div>
             </div>
           </div>
 
-          <!-- Right: Players Roster & Start Actions -->
           <div>
-            <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">PLAYERS IN CHAMBER:</div>
+            <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">CONNECTED PLAYERS:</div>
             <div id="playersList"></div>
 
             <div style="margin-top:14px;">
-              <button id="readyToggleBtn" class="btn btn-secondary">CLICK READY</button>
-              <button id="startGameBtn" class="btn btn-gold" style="display:none;">START MISSION ➔</button>
+              <button id="readyToggleBtn" onclick="handleToggleReady()" class="btn btn-secondary">CLICK READY</button>
+              <button id="startGameBtn" onclick="handleStartGame()" class="btn btn-gold" style="display:none;">START MISSION ➔</button>
             </div>
           </div>
         </div>
@@ -287,8 +281,7 @@
         <div id="doneCount" style="color:var(--muted);">0/2 Done</div>
       </div>
 
-      <div class="game-grid-layout">
-        <!-- Left: Crisis Briefing & Jugaad Chips -->
+      <div class="game-grid">
         <div class="glass-card">
           <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis</span>
           <h2 id="challengeTitle" style="font-size:20px;margin:4px 0 8px;">Loading...</h2>
@@ -298,11 +291,10 @@
           <div id="chipsTray" class="chips-carousel"></div>
         </div>
 
-        <!-- Right: Tactical Strategy Builder -->
         <div class="glass-card">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px;">TACTICAL STRATEGY BLUEPRINT:</div>
           <div id="blocksContainer"></div>
-          <button id="submitBtn" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
+          <button id="submitBtn" onclick="handleSubmitStrategy()" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
         </div>
       </div>
     </main>
@@ -315,19 +307,17 @@
           <span id="resultRoundBadge" style="color:var(--cyan);font-weight:800;font-size:13px;">Round 1</span>
         </div>
 
-        <!-- Standings -->
         <div id="leaderboardList" style="margin-bottom:16px;"></div>
 
-        <!-- Opponents Strategies Dossier -->
-        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponents Strategy Dossier (Face-Off):</h3>
+        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponents Strategy Dossier:</h3>
         <div id="opponentCards"></div>
 
-        <button id="nextRoundBtn" class="btn btn-gold" style="display:none;margin-top:14px;">NEXT ROUND ➔</button>
+        <button id="nextRoundBtn" onclick="handleNextRound()" class="btn btn-gold" style="display:none;margin-top:14px;">NEXT ROUND ➔</button>
         <p id="waitHostText" style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Waiting for host to proceed...</p>
       </div>
     </main>
 
-    <!-- 5. FINAL PODIUM -->
+    <!-- 5. FINAL CEREMONY -->
     <main id="gameOverScreen" class="screen">
       <div class="glass-card" style="text-align:center;padding:34px 16px;">
         <div style="font-size:52px;margin-bottom:8px;">🏆</div>
@@ -340,8 +330,8 @@
 
   </div>
 
-  <!-- Judging Wait Overlay -->
-  <div id="judgeModal" class="modal-overlay">
+  <!-- Judging Overlay -->
+  <div id="judgeModal" class="overlay-box">
     <div class="glass-card" style="text-align:center;max-width:320px;">
       <h2 style="color:var(--gold);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
       <p style="font-size:13px;color:var(--muted);">Comparing creativity, logic & street execution...</p>
@@ -349,6 +339,7 @@
   </div>
 
   <script>
+    // Challenges Data
     const CHALLENGES = [
       {
         cat: "City Crisis",
@@ -370,19 +361,25 @@
       }
     ];
 
-    // State & Persistent Identifiers
-    let myId = localStorage.getItem('pmr1_pid') || ('p_' + Math.random().toString(36).substr(2, 6));
-    localStorage.setItem('pmr1_pid', myId);
-    let myName = localStorage.getItem('pmr1_name') || '';
+    // Safe Storage Wrapper (Prevents Crashes on Mobile Browsers)
+    function safeGet(k, def) {
+      try { return localStorage.getItem(k) || def; } catch(e) { return def; }
+    }
+    function safeSet(k, v) {
+      try { localStorage.setItem(k, v); } catch(e) {}
+    }
+
+    // State Variables
+    let myId = safeGet('pmr1_pid', 'p_' + Math.random().toString(36).substr(2, 6));
+    safeSet('pmr1_pid', myId);
+    let myName = safeGet('pmr1_name', '');
 
     let isHost = false;
     let roomCode = '';
-    let roomEventSource = null;
-    let radarEventSource = null;
-    let inboxEventSource = null;
+    let mqttClient = null;
     let pendingInvite = null;
+    let onlinePlayers = new Map();
 
-    let onlinePlayers = new Map(); // id -> { name, lastSeen }
     let roomState = { code: '', hostId: '', players: [], round: 0, totRound: 3, subs: {}, time: 180 };
     let currentBlocks = [
       { type: "Masterstroke Idea", text: "" },
@@ -395,30 +392,38 @@
 
     function showToast(msg) {
       const t = $('toast');
+      if (!t) return;
       t.innerText = msg;
       t.style.display = 'block';
       setTimeout(() => { t.style.display = 'none'; }, 2200);
     }
 
-    function switchScreen(el) {
-      ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'].forEach(id => $(id).classList.remove('active'));
-      $('judgeModal').classList.remove('active');
-      if (el) el.classList.add('active');
+    // Bulletproof Direct Screen Switcher
+    function goToScreen(screenId) {
+      const screens = ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'];
+      screens.forEach(id => {
+        const el = $(id);
+        if (el) el.style.display = (id === screenId) ? 'block' : 'none';
+      });
+      const modal = $('judgeModal');
+      if (modal) modal.style.display = 'none';
+      window.scrollTo(0, 0);
     }
 
-    // Name Sync
-    function syncName() {
-      const inputVal = $('usernameInput').value.trim();
-      if (inputVal) {
-        myName = inputVal.substring(0, 15);
-      } else if (!myName) {
-        myName = 'Agent_' + Math.floor(100 + Math.random() * 900);
+    function saveNameInput() {
+      const val = $('usernameInput').value.trim();
+      if (val) {
+        myName = val.substring(0, 15);
+        safeSet('pmr1_name', myName);
+        $('navUsername').innerText = myName;
       }
-      localStorage.setItem('pmr1_name', myName);
-      $('usernameInput').value = myName;
-      $('navUsername').innerText = myName;
     }
 
-    $('usernameInput').addEventListener('input', () => {
-      myName = $('usernameInput').value.trim() || 'Agent';
-      localStorage.setItem('pmr1_nam
+    function editName() {
+      let n = prompt("Naya Codename / Username likhein:", myName);
+      if (n && n.trim()) {
+        myName = n.trim().substring(0, 15);
+        safeSet('pmr1_name', myName);
+        $('navUsername').innerText = myName;
+        $('usernameInput').value = myName;
+   
