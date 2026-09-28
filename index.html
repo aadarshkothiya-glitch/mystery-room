@@ -7,13 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-  <!-- Ultra-Reliable WSS MQTT Engine -->
-  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+  <!-- Ultra-Reliable Cloudflare CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
 
   <style>
     :root {
       --bg: #060f1f;
-      --card-bg: rgba(13, 29, 56, 0.88);
+      --card-bg: rgba(13, 29, 56, 0.9);
       --card-border: rgba(31, 107, 255, 0.35);
       --primary: #1F6BFF;
       --cyan: #00F0FF;
@@ -27,11 +27,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 12px; }
 
-    /* Ambient Glows */
     .glow-1 { position: fixed; top: -50px; left: -50px; width: 320px; height: 320px; background: rgba(31, 107, 255, 0.2); filter: blur(100px); border-radius: 50%; pointer-events: none; z-index: -1; }
     .glow-2 { position: fixed; bottom: -50px; right: -50px; width: 320px; height: 320px; background: rgba(0, 240, 255, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none; z-index: -1; }
 
-    /* Master Container - Mobile & Tablet Responsive */
+    /* Tablet & Mobile Layout */
     .app-container {
       max-width: 620px;
       margin: 0 auto;
@@ -40,9 +39,8 @@
       gap: 12px;
     }
 
-    /* Tablet Cockpit View */
     @media (min-width: 768px) {
-      .app-container { max-width: 880px; padding: 16px; }
+      .app-container { max-width: 920px; padding: 12px; }
       .home-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; align-items: start; }
       .lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
       .game-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
@@ -64,9 +62,8 @@
     .brand-badge { background: linear-gradient(135deg, var(--primary), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
     .user-tag { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
-    /* Screen Elements */
+    /* Screen Handlers */
     .screen { display: none; }
-    #authScreen { display: block; } /* First screen open by default */
 
     /* Buttons */
     .btn {
@@ -74,7 +71,7 @@
       width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px;
       cursor: pointer; border: none; transition: 0.15s; min-height: 50px;
     }
-    .btn:active { transform: scale(0.98); }
+    .btn:active { transform: scale(0.97); }
     .btn-primary { background: linear-gradient(135deg, var(--primary), #1551c6); color: #fff; }
     .btn-gold { background: linear-gradient(135deg, var(--gold), #e09f08); color: #071224; font-size: 15px; }
     .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.18); }
@@ -86,13 +83,12 @@
     }
     input[type="text"]:focus { border-color: var(--cyan); }
 
-    /* Home Layout */
-    .option-box { background: rgba(7, 18, 38, 0.7); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .option-box { background: rgba(7, 18, 38, 0.75); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
 
-    /* Radar List */
+    /* Radar */
     .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
     .radar-player-row {
       display: flex; justify-content: space-between; align-items: center;
       background: rgba(8, 22, 44, 0.85); border: 1px solid rgba(255,255,255,0.06);
@@ -119,16 +115,13 @@
     .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; font-size: 13px; font-weight: 700; }
     .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 18px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
 
-    /* Fast Jugaad Chips */
     .chips-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
     .jugaad-chip {
       background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
       color: #fff; padding: 7px 12px; border-radius: 20px; font-size: 12px;
       font-weight: 700; white-space: nowrap; cursor: pointer;
     }
-    .jugaad-chip:active { background: var(--primary); }
 
-    /* Builder Blocks */
     .strategy-card {
       background: rgba(7, 18, 38, 0.95); border-left: 4px solid var(--primary);
       border-radius: 12px; padding: 12px; margin-bottom: 10px;
@@ -140,13 +133,12 @@
       border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 60px; outline: none;
     }
 
-    /* Opponent Dossier */
     .dossier-card {
       background: rgba(5, 14, 28, 0.95); border: 1px solid var(--card-border);
       border-radius: 12px; padding: 14px; margin-bottom: 10px;
     }
 
-    /* Modal Overlays (Hidden By Default) */
+    /* Modals */
     .overlay-box {
       position: fixed; inset: 0; background: rgba(5, 12, 24, 0.96);
       display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px;
@@ -165,7 +157,7 @@
   <div class="glow-2"></div>
   <div id="toast" class="toast">Link Copied!</div>
 
-  <!-- DIRECT INVITATION MODAL -->
+  <!-- INVITATION MODAL -->
   <div id="inviteModal" class="overlay-box">
     <div class="glass-card" style="text-align:center; max-width:340px; width:100%; border:2px solid var(--gold);">
       <div style="font-size:38px;margin-bottom:8px;">🎮</div>
@@ -178,7 +170,6 @@
     </div>
   </div>
 
-  <!-- APP CONTAINER -->
   <div class="app-container">
 
     <!-- Top Navbar -->
@@ -194,7 +185,7 @@
     </header>
 
     <!-- 1. HOME SCREEN -->
-    <main id="authScreen" class="screen">
+    <main id="authScreen" class="screen" style="display: block;">
       <div class="home-grid">
         
         <!-- Left: Codename & 2 Big Action Options -->
@@ -211,7 +202,7 @@
               <b style="font-size:16px;">Host a Match</b>
             </div>
             <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Instant chamber create karein aur doston ko bulayein.</p>
-            <button onclick="handleCreateRoom()" class="btn btn-primary">✨ Create Room (Instant)</button>
+            <button id="createRoomBtn" onclick="handleCreateRoom()" class="btn btn-primary">✨ Create Room (Instant)</button>
           </div>
 
           <!-- OPTION 2: JOIN WITH CODE -->
@@ -246,7 +237,7 @@
     </main>
 
     <!-- 2. LOBBY SCREEN -->
-    <main id="lobbyScreen" class="screen">
+    <main id="lobbyScreen" class="screen" style="display: none;">
       <div class="glass-card">
         <div class="lobby-grid">
           <div>
@@ -274,7 +265,7 @@
     </main>
 
     <!-- 3. GAMEPLAY SCREEN -->
-    <main id="gameScreen" class="screen">
+    <main id="gameScreen" class="screen" style="display: none;">
       <div class="glass-card top-stats" style="margin-bottom:12px;">
         <div>ROUND <b id="roundNum" style="color:var(--cyan);">1</b> OF 3</div>
         <div id="timerBox" class="timer-pill">03:00</div>
@@ -300,7 +291,7 @@
     </main>
 
     <!-- 4. RESULTS SCREEN -->
-    <main id="resultsScreen" class="screen">
+    <main id="resultsScreen" class="screen" style="display: none;">
       <div class="glass-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
           <h2 style="font-size:20px;">Round Verdict</h2>
@@ -318,7 +309,7 @@
     </main>
 
     <!-- 5. FINAL CEREMONY -->
-    <main id="gameOverScreen" class="screen">
+    <main id="gameOverScreen" class="screen" style="display: none;">
       <div class="glass-card" style="text-align:center;padding:34px 16px;">
         <div style="font-size:52px;margin-bottom:8px;">🏆</div>
         <h1 id="winnerName" style="font-size:26px;margin-bottom:4px;">Winner</h1>
@@ -339,7 +330,6 @@
   </div>
 
   <script>
-    // Challenges Data
     const CHALLENGES = [
       {
         cat: "City Crisis",
@@ -361,7 +351,6 @@
       }
     ];
 
-    // Safe Storage Wrapper (Prevents Crashes on Mobile Browsers)
     function safeGet(k, def) {
       try { return localStorage.getItem(k) || def; } catch(e) { return def; }
     }
@@ -369,7 +358,6 @@
       try { localStorage.setItem(k, v); } catch(e) {}
     }
 
-    // State Variables
     let myId = safeGet('pmr1_pid', 'p_' + Math.random().toString(36).substr(2, 6));
     safeSet('pmr1_pid', myId);
     let myName = safeGet('pmr1_name', '');
@@ -398,14 +386,14 @@
       setTimeout(() => { t.style.display = 'none'; }, 2200);
     }
 
-    // Bulletproof Direct Screen Switcher
-    function goToScreen(screenId) {
+    // Bulletproof Screen Switcher
+    function showScreen(screenId) {
       const screens = ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'];
       screens.forEach(id => {
-        const el = $(id);
+        const el = document.getElementById(id);
         if (el) el.style.display = (id === screenId) ? 'block' : 'none';
       });
-      const modal = $('judgeModal');
+      const modal = document.getElementById('judgeModal');
       if (modal) modal.style.display = 'none';
       window.scrollTo(0, 0);
     }
@@ -426,4 +414,12 @@
         safeSet('pmr1_name', myName);
         $('navUsername').innerText = myName;
         $('usernameInput').value = myName;
-   
+      }
+    }
+
+    function checkName() {
+      if (!myName) {
+        const inputVal = $('usernameInput') ? $('usernameInput').value.trim() : '';
+        myName = inputVal ? inputVal.substring(0, 15) : ('Agent_' + Math.floor(100 + Math.random() * 900));
+        safeSet('pmr1_name', myName);
+      
