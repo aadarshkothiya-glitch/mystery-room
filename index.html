@@ -6,14 +6,13 @@
   <title>MYSTERY ROOM 1 — PRABAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-dark: #071427;
-      --panel-bg: rgba(13, 30, 58, 0.85);
-      --panel-border: rgba(31, 107, 255, 0.28);
+      --bg-dark: #060f1e;
+      --panel-bg: rgba(12, 28, 54, 0.9);
+      --panel-border: rgba(31, 107, 255, 0.35);
       --primary-blue: #1F6BFF;
       --cyan-glow: #00F0FF;
       --gold-glow: #FFD54A;
@@ -24,9 +23,10 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 12px; }
-    .glow-orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; pointer-events: none; }
-    .orb-1 { width: 250px; height: 250px; background: rgba(31, 107, 255, 0.2); top: -40px; left: -40px; }
-    .orb-2 { width: 250px; height: 250px; background: rgba(0, 240, 255, 0.12); bottom: 0; right: -40px; }
+    
+    .glow-orb { position: fixed; border-radius: 50%; filter: blur(90px); z-index: -1; pointer-events: none; }
+    .orb-1 { width: 250px; height: 250px; background: rgba(31, 107, 255, 0.25); top: -40px; left: -40px; }
+    .orb-2 { width: 250px; height: 250px; background: rgba(0, 240, 255, 0.15); bottom: 0; right: -40px; }
 
     .app-container { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; }
     .glass-panel, .glass-card {
@@ -41,11 +41,11 @@
 
     /* Top Bar */
     .navbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
-    .brand-badge { background: linear-gradient(135deg, var(--primary-blue), #00c3ff); font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+    .brand-badge { background: linear-gradient(135deg, var(--primary-blue), #00c3ff); font-size: 11px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
     .brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin-left: 6px; }
     .profile-pill {
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.15);
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 12px;
@@ -53,15 +53,15 @@
       align-items: center;
       gap: 6px;
     }
-    .edit-btn { background: none; border: none; color: var(--cyan-glow); cursor: pointer; font-size: 11px; }
+    .edit-btn { background: none; border: none; color: var(--cyan-glow); cursor: pointer; font-size: 12px; }
 
     .screen { display: none; }
     .screen.active { display: block; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Home UI */
+    /* Home */
     .hero-card { text-align: center; padding: 22px 16px; }
-    .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .tagline { color: var(--gold-glow); font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
     .headline { font-size: 20px; font-weight: 800; margin-bottom: 6px; line-height: 1.3; }
     .subtext { color: var(--text-dim); font-size: 12px; margin-bottom: 18px; }
 
@@ -84,14 +84,14 @@
       text-transform: uppercase;
       outline: none;
     }
-    .join-group button { width: auto; padding: 0 18px; white-space: nowrap; }
+    .join-group button { width: auto; padding: 0 16px; white-space: nowrap; }
 
-    /* Online Players Radar Box */
+    /* Online Radar */
     .radar-card { margin-top: 4px; }
     .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .radar-title { font-size: 13px; font-weight: 700; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
     .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
-    .online-players-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+    .online-players-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
     .online-player-row {
       display: flex;
       justify-content: space-between;
@@ -114,7 +114,7 @@
     }
     .empty-radar { text-align: center; color: var(--text-dim); font-size: 12px; padding: 18px 0; font-style: italic; }
 
-    /* Invitation Modal Popup */
+    /* Invite Modal */
     .invite-modal {
       position: fixed;
       inset: 0;
@@ -141,7 +141,7 @@
     .invite-text { font-size: 15px; margin: 10px 0 18px; line-height: 1.4; color: #fff; }
     .invite-actions { display: flex; gap: 10px; }
 
-    /* Lobby & In-Game Styles */
+    /* Lobby */
     .room-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     .room-badge-large { background: rgba(0,0,0,0.4); border: 1px solid var(--cyan-glow); padding: 6px 12px; border-radius: 10px; display: flex; align-items: center; gap: 8px; }
     .room-badge-large b { color: var(--cyan-glow); font-family: monospace; font-size: 16px; }
@@ -154,22 +154,85 @@
     .ready-status.ready { background: rgba(16, 185, 129, 0.2); color: var(--success); }
     .ready-status.waiting { background: rgba(255, 255, 255, 0.08); color: var(--text-dim); }
 
+    /* Game Top Bar & Power Meter */
     .game-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 12px; font-weight: 700; }
     .timer-box { font-family: monospace; font-size: 16px; color: var(--gold-glow); background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; }
 
+    .power-meter-container {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+    .power-top { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 5px; }
+    .power-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
+    .power-fill { height: 100%; width: 20%; background: linear-gradient(90deg, #1F6BFF, #00F0FF, #FFD54A); border-radius: 6px; transition: width 0.3s ease; }
+
+    /* Challenge Box */
     .challenge-category { font-size: 10px; font-weight: 800; color: var(--cyan-glow); text-transform: uppercase; margin-bottom: 4px; }
     .challenge-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-    .challenge-prompt { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+    .challenge-prompt { font-size: 13px; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px; }
 
-    .block-palette { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin: 10px 0; }
+    /* Idea Spark Injector */
+    .spark-box {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      background: rgba(255, 213, 74, 0.1);
+      border: 1px dashed var(--gold-glow);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+    }
+    .spark-btn {
+      background: var(--gold-glow);
+      border: none;
+      color: #071427;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .spark-text { font-size: 11px; color: #fed7aa; flex: 1; font-style: italic; }
+
+    /* Block Palette */
+    .palette-container { margin-bottom: 8px; }
+    .block-palette { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
     .palette-chip { background: rgba(13,30,58,0.9); border: 1px solid var(--panel-border); color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
-    .strategy-block { background: rgba(9, 21, 41, 0.95); border-left: 3px solid var(--primary-blue); border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+
+    /* Strategy Cards */
+    .strategy-block {
+      background: rgba(9, 21, 41, 0.95);
+      border-left: 4px solid var(--primary-blue);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
     .block-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .block-type-tag { font-size: 11px; font-weight: 700; color: var(--cyan-glow); }
-    .block-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; cursor: pointer; }
+    .block-type-tag { font-size: 11px; font-weight: 800; color: var(--cyan-glow); letter-spacing: 0.5px; }
+    .block-btn { background: rgba(255,255,255,0.06); border: none; color: #fff; padding: 2px 7px; border-radius: 4px; font-size: 11px; margin-left: 4px; cursor: pointer; }
     .block-btn.delete { color: var(--danger); }
-    .block-input-title { width: 100%; background: transparent; border: none; font-size: 13px; font-weight: 700; color: #fff; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 2px; margin-bottom: 6px; }
-    .block-textarea { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px; color: #fff; font-size: 12px; min-height: 48px; outline: none; }
+    .block-input-title { width: 100%; background: transparent; border: none; font-size: 14px; font-weight: 700; color: #fff; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 3px; margin-bottom: 6px; }
+    .block-guide { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; font-style: italic; }
+    .block-textarea { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; color: #fff; font-size: 13px; min-height: 52px; outline: none; }
+    .block-textarea:focus { border-color: var(--cyan-glow); }
+
+    /* Opponent Dossier Showcase */
+    .dossier-card {
+      background: rgba(7, 18, 36, 0.9);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .dossier-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; margin-bottom: 8px; }
+    .dossier-player { font-weight: 800; font-size: 13px; color: var(--gold-glow); }
+    .dossier-item { margin-bottom: 6px; font-size: 12px; }
+    .dossier-item b { color: var(--cyan-glow); }
 
     /* Results */
     .honorary-badge { display: inline-block; background: rgba(255, 213, 74, 0.15); color: var(--gold-glow); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; margin-bottom: 6px; }
@@ -180,25 +243,14 @@
     .lb-row { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; font-size: 13px; margin-bottom: 6px; }
     .lb-row.top-1 { border: 1px solid rgba(255,213,74,0.3); background: rgba(255,213,74,0.1); font-weight: 700; }
 
-    /* Toast Notification */
     .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(16, 185, 129, 0.95);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      display: none;
-      z-index: 2000;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(16, 185, 129, 0.95); color: #fff; padding: 8px 16px;
+      border-radius: 20px; font-size: 12px; font-weight: 700; display: none; z-index: 2000;
     }
-
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(7, 20, 39, 0.96); display: none; align-items: center; justify-content: center; z-index: 999; padding: 16px; text-align: center;
+      position: fixed; inset: 0; background: rgba(7, 20, 39, 0.96); display: none;
+      align-items: center; justify-content: center; z-index: 999; padding: 16px; text-align: center;
     }
     .modal-overlay.active { display: flex !important; }
     .hidden { display: none !important; }
@@ -209,10 +261,9 @@
   <div class="glow-orb orb-1"></div>
   <div class="glow-orb orb-2"></div>
 
-  <!-- Toast Notice -->
   <div id="toast" class="toast">Link Copied!</div>
 
-  <!-- INVITATION POPUP MODAL -->
+  <!-- INVITATION POPUP -->
   <div id="inviteModal" class="invite-modal">
     <div class="invite-box">
       <div class="invite-avatar">🎮</div>
@@ -233,7 +284,7 @@
       </div>
       <div class="profile-pill">
         <span id="headerUsername">Operative</span>
-        <button id="editUsernameBtn" class="edit-btn" title="Change name">✏️</button>
+        <button id="editUsernameBtn" class="edit-btn">✏️</button>
       </div>
     </header>
 
@@ -244,19 +295,17 @@
         <h1 class="headline">Creative Problem Solving</h1>
         <p class="subtext">Compete in real-time strategic problem solving</p>
 
-        <!-- Quick Create -->
         <button id="createRoomBtn" class="btn btn-primary" style="padding:14px;font-size:15px;">
           ✨ Create New Room (Host)
         </button>
 
-        <!-- Clean Join Box -->
         <div class="join-group">
           <input type="text" id="joinCodeInput" placeholder="Room Code (e.g. 7X92)" maxlength="8" />
-          <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+          <button id="joinRoomBtn" class="btn btn-secondary">Join</button>
         </div>
       </div>
 
-      <!-- ACTIVE OPERATIVES RADAR -->
+      <!-- ACTIVE RADAR -->
       <section class="glass-card radar-card">
         <div class="radar-header">
           <span class="radar-title">
@@ -281,7 +330,7 @@
           </div>
           <div class="room-badge-large">
             <b id="displayRoomCode">MR-0000</b>
-            <button id="copyFullLinkBtn" class="copy-pill-btn">📋 Copy Link</button>
+            <button id="copyFullLinkBtn" class="copy-pill-btn">📋 Link</button>
           </div>
         </div>
 
@@ -300,28 +349,45 @@
         <div id="submissionCounter" style="color:var(--text-dim);">0/2 Done</div>
       </div>
 
+      <!-- LIVE POWER METER -->
+      <div class="power-meter-container">
+        <div class="power-top">
+          <span style="color:var(--text-dim);">STRATEGY CREATIVITY LEVEL:</span>
+          <span id="powerLevelTitle" style="color:var(--gold-glow);">⚡ Normal Plan</span>
+        </div>
+        <div class="power-track">
+          <div id="powerBarFill" class="power-fill"></div>
+        </div>
+      </div>
+
+      <!-- CHALLENGE CARD -->
       <section class="glass-card">
         <div class="challenge-category" id="challengeCategory">Environment</div>
-        <h2 class="challenge-title" id="challengeTitle">Loading...</h2>
+        <h2 class="challenge-title" id="challengeTitle">Loading Crisis...</h2>
         <p class="challenge-prompt" id="challengePrompt"></p>
-        <details class="gyani-hints" style="margin-top:10px;">
-          <summary style="color:var(--gold-glow);font-weight:700;font-size:12px;cursor:pointer;">🧠 Ask PRABAL GYANI for Hint</summary>
-          <p style="padding-top:6px;color:var(--text-dim);font-size:12px;">Problem ka root cause pakad kar Idea + Action + Budget blocks jodo!</p>
-        </details>
+        
+        <!-- IDEA SPARK INJECTOR -->
+        <div class="spark-box">
+          <button id="sparkRollBtn" class="spark-btn">🎲 Idea Spark</button>
+          <span id="sparkTextDisplay" class="spark-text">Idea dimaag mein nahi aa raha? Tap karein!</span>
+        </div>
       </section>
 
+      <!-- STRATEGY BUILDER -->
       <section>
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Add Solution Blocks:</div>
-        <div class="block-palette" id="blockPalette">
-          <button class="palette-chip" data-type="Idea">💡 Idea</button>
-          <button class="palette-chip" data-type="Action">⚙️ Action</button>
-          <button class="palette-chip" data-type="Budget">💰 Budget</button>
-          <button class="palette-chip" data-type="People">👥 People</button>
-          <button class="palette-chip" data-type="Impact">📈 Impact</button>
-          <button class="palette-chip" data-type="Risk">⚠️ Risk</button>
+        <div class="palette-container">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text-dim);">Add Tactical Blocks:</div>
+          <div class="block-palette" id="blockPalette">
+            <button class="palette-chip" data-type="Master Idea">💡 Masterstroke</button>
+            <button class="palette-chip" data-type="Street Action">⚙️ Street Action</button>
+            <button class="palette-chip" data-type="Zero-Budget Hack">💰 Zero-Budget</button>
+            <button class="palette-chip" data-type="Viral Impact">🔥 Viral Reward</button>
+            <button class="palette-chip" data-type="Plot Twist">⚠️ Plot Twist</button>
+          </div>
         </div>
+
         <div id="canvasBlocks"></div>
-        <button id="submitSolutionBtn" class="btn btn-primary" style="padding:15px;margin-top:12px;font-size:15px;">🔒 LOCK & SUBMIT SOLUTION</button>
+        <button id="submitSolutionBtn" class="btn btn-primary" style="padding:15px;margin-top:10px;font-size:15px;">🔒 LOCK & SUBMIT STRATEGY</button>
       </section>
     </main>
 
@@ -329,50 +395,19 @@
     <div id="judgingOverlay" class="modal-overlay">
       <div class="glass-card" style="max-width:320px;">
         <h2 style="color:var(--gold-glow);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
-        <p style="font-size:12px;color:var(--text-dim);">Evaluating creativity, logic & practicality...</p>
+        <p style="font-size:12px;color:var(--text-dim);">Analyzing strategies for originality, logic & ground execution...</p>
       </div>
     </div>
 
-    <!-- 5. ROUND RESULTS -->
+    <!-- 5. ROUND RESULTS & OPPONENT DOSSIER -->
     <main id="roundResultsScreen" class="screen">
       <div class="glass-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <h2 style="font-size:18px;">Round Verdict</h2>
           <span id="resultsRoundBadge" style="font-size:11px;color:var(--cyan-glow);font-weight:700;">Round 1</span>
         </div>
+
+        <!-- My Score -->
         <div class="glass-panel" style="border-left:3px solid var(--gold-glow);margin-bottom:12px;">
           <span class="honorary-badge" id="myHonoraryTitle">🧠 Dimaag Ka Don</span>
-          <h3 id="myTotalRoundScore" style="font-size:16px;">Score: 85/100</h3>
-          <div id="scoreBarsGrid" style="margin-top:8px;"></div>
-        </div>
-        <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Round Leaderboard:</h3>
-        <div id="roundLeaderboardList"></div>
-        <button id="nextRoundBtn" class="btn btn-gold hidden" style="margin-top:14px;">NEXT ROUND ➔</button>
-        <p id="waitingHostNotice" style="font-size:12px;color:var(--text-dim);text-align:center;margin-top:10px;">Waiting for host to proceed...</p>
-      </div>
-    </main>
-
-    <!-- 6. FINAL CEREMONY -->
-    <main id="gameOverScreen" class="screen">
-      <div class="glass-card" style="text-align:center;padding:30px 16px;">
-        <div style="font-size:48px;">🏆</div>
-        <div style="font-size:11px;font-weight:800;color:var(--cyan-glow);letter-spacing:1px;">MATCH CONCLUDED</div>
-        <h1 id="winnerName" style="font-size:24px;margin:6px 0;">Operative</h1>
-        <p id="winnerHonorary" style="color:var(--gold-glow);font-size:15px;font-weight:700;margin-bottom:10px;">"🧠 Dimaag Ka Don"</p>
-        <div id="winnerFinalScore" style="font-size:28px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:18px;">0 / 300</div>
-        <div id="finalLeaderboardList" style="text-align:left;margin-bottom:16px;"></div>
-        <button onclick="location.reload()" class="btn btn-primary">PLAY AGAIN</button>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    const CHALLENGES_DB = [
-      { id: 101, category: "Environment", title: "City Plastic Waste Crisis", prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Budget bohot kam hai. Ek realistic self-sustaining system design karein jisse log plastic road par na phenkein." },
-      { id: 102, category: "Education", title: "Low-Cost Rural Learning Hub", prompt: "Door ke gaaon mein bijli bar-bar jaati hai aur internet nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka interactive learning system banayein." },
-      { id: 103, category: "Urban Life", title: "Traffic & Pollution Gridlock", prompt: "School & office peak hours par central chowk 90 minute jam rehta hai. Heritage buildings ki wajah se road chaudi nahi ho sakti. Traffic flow ka smart jugaad banayein." }
-    ];
-
-    // Presence & App State
-    let myPlayerId = localStorage.getItem('prabal_mr_pid');
-    
+          <h3 id="myTotalRou
