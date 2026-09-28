@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MYSTERY ROOM 1 — PRABAL</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-  <!-- Reliable MQTT over WebSocket -->
-  <script src="https://unpkg.com/mqtt@5.3.5/dist/mqtt.min.js"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #071224;
-      --card-bg: rgba(14, 30, 58, 0.9);
-      --border: rgba(31, 107, 255, 0.35);
-      --blue: #1F6BFF;
+      --bg: #060f1f;
+      --card-bg: rgba(13, 29, 56, 0.85);
+      --card-border: rgba(31, 107, 255, 0.35);
+      --primary: #1F6BFF;
+      --primary-hover: #3b7fff;
       --cyan: #00F0FF;
       --gold: #FFD54A;
       --text: #FFFFFF;
@@ -23,264 +22,329 @@
       --success: #10B981;
       --danger: #EF4444;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding: 12px; }
 
-    /* Tablet & Mobile Responsive Wrapper */
+    /* Ambient Glows */
+    .glow-1 { position: fixed; top: -50px; left: -50px; width: 320px; height: 320px; background: rgba(31, 107, 255, 0.2); filter: blur(100px); border-radius: 50%; pointer-events: none; z-index: -1; }
+    .glow-2 { position: fixed; bottom: -50px; right: -50px; width: 320px; height: 320px; background: rgba(0, 240, 255, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none; z-index: -1; }
+
+    /* Master Container - Mobile & Tablet Responsive */
     .app-container {
-      max-width: 680px;
-      width: 100%;
+      max-width: 600px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+    }
+
+    /* Tablet Expansion */
+    @media (min-width: 768px) {
+      .app-container { max-width: 960px; padding: 12px; }
+      .home-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      .lobby-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .game-grid-layout { display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 16px; align-items: start; }
     }
 
     .glass-card {
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
       padding: 18px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
     }
 
-    /* Top Bar */
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+    /* Navbar */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; }
     .brand { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
-    .badge { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 6px; border-radius: 5px; }
-    .user-pill { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .brand-badge { background: linear-gradient(135deg, var(--primary), var(--cyan)); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; }
+    .user-tag { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.12); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 
     /* View Switcher */
     .screen { display: none; }
     .screen.active { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Buttons & Inputs */
+    /* Inputs & Buttons */
     .btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 14px;
-      cursor: pointer; border: none; transition: 0.15s; min-height: 48px;
+      cursor: pointer; border: none; transition: 0.15s; min-height: 50px;
     }
-    .btn-primary { background: linear-gradient(135deg, var(--blue), #124ec2); color: #fff; }
-    .btn-gold { background: linear-gradient(135deg, var(--gold), #e5a40a); color: #071224; font-size: 15px; }
-    .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
-    .btn-wa { background: #25D366; color: #fff; font-weight: 800; }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), #1551c6); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), #e09f08); color: #071224; font-size: 15px; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.18); }
+    .btn-wa { background: #25D366; color: #fff; }
 
     input[type="text"] {
-      width: 100%; padding: 14px; background: rgba(5,15,30,0.85); border: 1px solid var(--border);
-      border-radius: 12px; color: #fff; font-size: 15px; font-weight: 700; outline: none; margin-bottom: 12px;
+      width: 100%; padding: 14px; background: rgba(5,15,32,0.9); border: 1px solid var(--card-border);
+      border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; outline: none; margin-bottom: 12px;
     }
+    input[type="text"]:focus { border-color: var(--cyan); }
 
     /* Home Layout */
-    .choice-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
-    @media (min-width: 600px) { .choice-grid { grid-template-columns: 1fr 1fr; } }
-    .choice-card {
-      background: rgba(8, 20, 42, 0.7);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 12px;
+    .options-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+    .option-box { background: rgba(7, 18, 38, 0.7); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; }
+
+    /* Active Players Radar */
+    .radar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .radar-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .radar-list { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+    .radar-player-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(8, 22, 44, 0.85); border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700;
+    }
+    .invite-action-btn {
+      background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
+      color: var(--cyan); padding: 6px 14px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;
     }
 
     /* Lobby */
-    .room-banner {
+    .banner-code-box {
       background: rgba(0,0,0,0.4); border: 1px solid var(--cyan);
-      border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 14px;
+      border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 14px;
     }
-    .room-code-big { font-size: 32px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 2px; }
-    .player-row {
+    .code-text-big { font-size: 36px; font-family: 'Space Grotesk', monospace; font-weight: 800; color: var(--cyan); letter-spacing: 3px; }
+    .player-roster-item {
       display: flex; justify-content: space-between; align-items: center;
-      background: rgba(7, 18, 36, 0.85); padding: 12px 14px; border-radius: 10px;
+      background: rgba(7, 18, 36, 0.9); padding: 12px 14px; border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; font-size: 14px; font-weight: 700;
     }
 
-    /* Gameplay Top Bar */
-    .top-stat-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 13px; font-weight: 700; }
-    .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 17px; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
+    /* Game Screen */
+    .top-stats { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; font-size: 13px; font-weight: 700; }
+    .timer-pill { background: rgba(0,0,0,0.5); color: var(--gold); font-family: monospace; font-size: 18px; padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,213,74,0.3); }
 
-    /* Ready-Made Idea Chips (No More Boring Typing!) */
-    .chips-tray { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; margin-bottom: 10px; }
-    .chip {
+    /* Jugaad Idea Chips */
+    .chips-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0; margin-bottom: 12px; }
+    .jugaad-chip {
       background: rgba(31, 107, 255, 0.2); border: 1px solid var(--cyan);
       color: #fff; padding: 7px 12px; border-radius: 20px; font-size: 12px;
       font-weight: 700; white-space: nowrap; cursor: pointer;
     }
-    .chip:hover { background: var(--blue); }
+    .jugaad-chip:active { background: var(--primary); }
 
-    /* Strategy Cards */
-    .block-card {
-      background: rgba(7, 18, 38, 0.95);
-      border-left: 4px solid var(--blue);
+    /* Builder Blocks */
+    .strategy-card {
+      background: rgba(7, 18, 38, 0.95); border-left: 4px solid var(--primary);
       border-radius: 12px; padding: 12px; margin-bottom: 10px;
       border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);
     }
-    .block-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--cyan); margin-bottom: 6px; }
-    .block-textarea {
+    .strategy-card-title { font-size: 12px; font-weight: 800; color: var(--cyan); margin-bottom: 6px; }
+    .strategy-textarea {
       width: 100%; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 55px; outline: none;
+      border-radius: 8px; padding: 10px; color: #fff; font-size: 14px; min-height: 60px; outline: none;
     }
-    .block-textarea:focus { border-color: var(--cyan); }
+    .strategy-textarea:focus { border-color: var(--cyan); }
 
-    /* Opponent Dossier */
-    .dossier-box {
-      background: rgba(5, 14, 28, 0.9); border: 1px solid var(--border);
-      border-radius: 12px; padding: 12px; margin-bottom: 10px;
+    /* Dossier */
+    .dossier-card {
+      background: rgba(5, 14, 28, 0.95); border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 14px; margin-bottom: 10px;
     }
 
-    /* Modal - STRICTLY HIDDEN BY DEFAULT */
-    .overlay-modal {
-      position: fixed; inset: 0; background: rgba(5,12,24,0.95);
+    /* Modal Alerts */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(5, 12, 24, 0.96);
       display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
     }
-    .overlay-modal.active { display: flex !important; }
+    .modal-overlay.active { display: flex !important; }
 
     .toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: var(--success); color: #fff; padding: 8px 18px; border-radius: 20px;
+      background: var(--success); color: #fff; padding: 9px 20px; border-radius: 20px;
       font-size: 13px; font-weight: 700; display: none; z-index: 2000;
     }
   </style>
 </head>
 <body>
 
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
   <div id="toast" class="toast">Link Copied!</div>
 
+  <!-- INVITATION POPUP -->
+  <div id="inviteModal" class="modal-overlay">
+    <div class="glass-card" style="text-align:center; max-width:340px; width:100%; border:2px solid var(--gold);">
+      <div style="font-size:38px;margin-bottom:8px;">🎮</div>
+      <h3 style="color:var(--gold);font-size:18px;">Mission Invitation!</h3>
+      <p id="inviteModalText" style="margin:10px 0 16px;font-size:14px;line-height:1.4;">Operative invited you!</p>
+      <div style="display:flex;gap:10px;">
+        <button id="declineInviteBtn" class="btn btn-secondary" style="border-color:var(--danger);color:#fca5a5;">Decline</button>
+        <button id="acceptInviteBtn" class="btn btn-gold">Accept & Join</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP CONTAINER -->
   <div class="app-container">
+
+    <!-- Top Navbar -->
     <header class="glass-card navbar">
       <div class="brand">
-        <span class="badge">PRABAL</span>
+        <span class="brand-badge">PRABAL</span>
         <span>MYSTERY ROOM 1</span>
       </div>
-      <div class="user-pill">
+      <div class="user-tag">
         <span id="navUsername">Agent</span>
-        <span onclick="editName()" style="cursor:pointer;color:var(--cyan);">✏️</span>
       </div>
     </header>
 
-    <!-- 1. HOME SCREEN (Simple, Clear & Uncluttered) -->
+    <!-- 1. HOME SCREEN -->
     <main id="authScreen" class="screen active">
-      <div class="glass-card" style="text-align:center;">
-        <span style="color:var(--gold);font-size:11px;font-weight:800;letter-spacing:1px;">PRABAL MULTIPLAYER</span>
-        <h1 style="font-size:22px;margin:6px 0;">Creative Problem Solving</h1>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Real-life problems. No fixed textbook answers. Compete with your strategy!</p>
-
-        <div class="choice-grid">
-          <!-- CREATE ROOM BOX -->
-          <div class="choice-card">
-            <div>
-              <div style="font-size:28px;">👑</div>
-              <h3 style="margin:4px 0;">Host A Match</h3>
-              <p style="font-size:12px;color:var(--muted);">Room banayein aur WhatsApp par doston ko link bhejein.</p>
-            </div>
-            <button id="createRoomBtn" class="btn btn-primary">✨ Create Room</button>
+      <div class="home-grid-layout">
+        
+        <!-- Left Column: Name & 2 Big Action Options -->
+        <div class="glass-card">
+          <div style="margin-bottom:12px;">
+            <label style="font-size:11px;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;">YOUR CODENAME / NAME:</label>
+            <input type="text" id="usernameInput" placeholder="Apna naam likhein (e.g. Aadarsh)" maxlength="15" />
           </div>
 
-          <!-- JOIN ROOM BOX -->
-          <div class="choice-card">
-            <div>
-              <div style="font-size:28px;">🎮</div>
-              <h3 style="margin:4px 0;">Join Friend</h3>
-              <p style="font-size:12px;color:var(--muted);">Dost ka 4-digit room code yahan enter karein.</p>
+          <div class="options-stack">
+            <!-- OPTION 1: CREATE ROOM -->
+            <div class="option-box">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:20px;">👑</span>
+                <b style="font-size:15px;">Host a Match</b>
+              </div>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Naya chamber create karein aur dost ko code bhej kar bulayein.</p>
+              <button id="createRoomBtn" class="btn btn-primary">✨ Create Room (Instant)</button>
             </div>
-            <div>
-              <input type="text" id="joinCodeInput" placeholder="ENTER 4-DIGIT CODE" maxlength="6" style="margin-bottom:8px;text-align:center;" />
-              <button id="joinRoomBtn" class="btn btn-secondary">Join Room</button>
+
+            <!-- OPTION 2: JOIN WITH CODE -->
+            <div class="option-box">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:20px;">🎮</span>
+                <b style="font-size:15px;">Join with Code</b>
+              </div>
+              <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Dost ka 4-digit code yahan daalein.</p>
+              <div style="display:flex;gap:8px;">
+                <input type="text" id="joinCodeInput" placeholder="CODE (e.g. 7X92)" maxlength="6" style="margin-bottom:0;text-align:center;font-size:16px;" />
+                <button id="joinRoomBtn" class="btn btn-secondary" style="width:auto;padding:0 20px;white-space:nowrap;">Join</button>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Right Column: Live Scanning Radar -->
+        <div class="glass-card">
+          <div class="radar-header">
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;">
+              <span class="radar-pulse"></span>
+              <span>ACTIVE PLAYERS RADAR</span>
+            </div>
+            <span id="radarCount" style="font-size:11px;color:var(--cyan);font-weight:700;">Scanning...</span>
+          </div>
+          <div id="radarList" class="radar-list">
+            <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:13px;">Searching for online players...</div>
+          </div>
+        </div>
+
       </div>
     </main>
 
     <!-- 2. LOBBY SCREEN -->
     <main id="lobbyScreen" class="screen">
       <div class="glass-card">
-        <div class="room-banner">
-          <div style="font-size:11px;color:var(--muted);font-weight:700;">SHARE ROOM CODE:</div>
-          <div id="roomCodeDisplay" class="room-code-big">7X92</div>
-          <div style="display:flex;gap:8px;margin-top:10px;">
-            <button id="shareWaBtn" class="btn btn-wa">💬 WhatsApp Par Bhejo</button>
-            <button id="copyLinkBtn" class="btn btn-secondary">📋 Copy Link</button>
+        <div class="lobby-grid-layout">
+          <!-- Left: Code & Share Buttons -->
+          <div>
+            <div class="banner-code-box">
+              <div style="font-size:11px;color:var(--muted);font-weight:800;">CHAMBER ROOM CODE:</div>
+              <div id="roomCodeDisplay" class="code-text-big">----</div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <button id="shareWaBtn" class="btn btn-wa">💬 WhatsApp Par Bhejo</button>
+                <button id="copyLinkBtn" class="btn btn-secondary">📋 Copy Link</button>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <h3 style="font-size:14px;color:var(--muted);margin-bottom:8px;">Players in Chamber:</h3>
-        <div id="playersList"></div>
+          <!-- Right: Players Roster & Start Actions -->
+          <div>
+            <div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px;">PLAYERS IN CHAMBER:</div>
+            <div id="playersList"></div>
 
-        <div style="margin-top:14px;">
-          <button id="readyToggleBtn" class="btn btn-secondary">CLICK READY</button>
-          <button id="startGameBtn" class="btn btn-gold" style="display:none;">START MISSION ➔</button>
+            <div style="margin-top:14px;">
+              <button id="readyToggleBtn" class="btn btn-secondary">CLICK READY</button>
+              <button id="startGameBtn" class="btn btn-gold" style="display:none;">START MISSION ➔</button>
+            </div>
+          </div>
         </div>
       </div>
     </main>
 
-    <!-- 3. GAME SCREEN -->
+    <!-- 3. GAMEPLAY SCREEN -->
     <main id="gameScreen" class="screen">
-      <div class="glass-card top-stat-bar">
-        <div>ROUND <b id="roundNum" style="color:var(--cyan);">1</b>/3</div>
+      <div class="glass-card top-stats" style="margin-bottom:12px;">
+        <div>ROUND <b id="roundNum" style="color:var(--cyan);">1</b> OF 3</div>
         <div id="timerBox" class="timer-pill">03:00</div>
         <div id="doneCount" style="color:var(--muted);">0/2 Done</div>
       </div>
 
-      <!-- Challenge Card -->
-      <section class="glass-card">
-        <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;text-transform:uppercase;">Crisis</span>
-        <h2 id="challengeTitle" style="font-size:18px;margin:4px 0 6px;">Loading...</h2>
-        <p id="challengePrompt" style="font-size:13px;color:#cbd5e1;line-height:1.5;"></p>
-      </section>
+      <div class="game-grid-layout">
+        <!-- Left: Crisis Briefing & Jugaad Chips -->
+        <div class="glass-card">
+          <span id="challengeCat" style="color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;">Crisis</span>
+          <h2 id="challengeTitle" style="font-size:20px;margin:4px 0 8px;">Loading...</h2>
+          <p id="challengePrompt" style="font-size:14px;color:#cbd5e1;line-height:1.6;margin-bottom:14px;"></p>
 
-      <!-- Strategy Builder & Fast Idea Chips -->
-      <section class="glass-card">
-        <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:4px;">💡 TAP CHIP TO AUTO-ADD JUGAAD IDEA:</div>
-        <div id="chipsTray" class="chips-tray"></div>
-
-        <div id="blocksContainer"></div>
-
-        <button id="submitBtn" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
-      </section>
-    </main>
-
-    <!-- 4. RESULTS SCREEN (Opponent Showdown) -->
-    <main id="resultsScreen" class="screen">
-      <div class="glass-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <h2 style="font-size:18px;">Round Verdict</h2>
-          <span id="resultRoundBadge" style="color:var(--cyan);font-weight:700;font-size:12px;">Round 1</span>
+          <div style="font-size:11px;font-weight:800;color:var(--gold);margin-bottom:6px;">💡 TAP JUGAAD CHIP TO AUTO-INSERT:</div>
+          <div id="chipsTray" class="chips-carousel"></div>
         </div>
 
-        <!-- Leaderboard -->
-        <div id="leaderboardList" style="margin-bottom:14px;"></div>
+        <!-- Right: Tactical Strategy Builder -->
+        <div class="glass-card">
+          <div style="font-size:13px;font-weight:800;margin-bottom:10px;">TACTICAL STRATEGY BLUEPRINT:</div>
+          <div id="blocksContainer"></div>
+          <button id="submitBtn" class="btn btn-primary" style="margin-top:10px;">🔒 LOCK & SUBMIT STRATEGY</button>
+        </div>
+      </div>
+    </main>
 
-        <!-- Opponent Strategies Cards -->
-        <h3 style="font-size:13px;color:var(--gold);margin-bottom:8px;">🕵️ Opponents Strategy Dossier:</h3>
+    <!-- 4. RESULTS SCREEN -->
+    <main id="resultsScreen" class="screen">
+      <div class="glass-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h2 style="font-size:20px;">Round Verdict</h2>
+          <span id="resultRoundBadge" style="color:var(--cyan);font-weight:800;font-size:13px;">Round 1</span>
+        </div>
+
+        <!-- Standings -->
+        <div id="leaderboardList" style="margin-bottom:16px;"></div>
+
+        <!-- Opponents Strategies Dossier -->
+        <h3 style="font-size:14px;color:var(--gold);margin-bottom:10px;">🕵️ Opponents Strategy Dossier (Face-Off):</h3>
         <div id="opponentCards"></div>
 
         <button id="nextRoundBtn" class="btn btn-gold" style="display:none;margin-top:14px;">NEXT ROUND ➔</button>
-        <p id="waitHostText" style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px;">Waiting for host...</p>
+        <p id="waitHostText" style="text-align:center;font-size:13px;color:var(--muted);margin-top:10px;">Waiting for host to proceed...</p>
       </div>
     </main>
 
-    <!-- 5. FINAL CEREMONY -->
+    <!-- 5. FINAL PODIUM -->
     <main id="gameOverScreen" class="screen">
-      <div class="glass-card" style="text-align:center;padding:30px 16px;">
-        <div style="font-size:48px;">🏆</div>
-        <h1 id="winnerName" style="font-size:24px;margin:6px 0;">Operative</h1>
-        <p id="winnerTitle" style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:14px;">"🧠 Dimaag Ka Don"</p>
-        <div id="finalScore" style="font-size:28px;font-weight:800;margin-bottom:18px;">0 PTS</div>
+      <div class="glass-card" style="text-align:center;padding:34px 16px;">
+        <div style="font-size:52px;margin-bottom:8px;">🏆</div>
+        <h1 id="winnerName" style="font-size:26px;margin-bottom:4px;">Winner</h1>
+        <p id="winnerTitle" style="color:var(--gold);font-size:17px;font-weight:700;margin-bottom:16px;">"🧠 Dimaag Ka Don"</p>
+        <div id="finalScore" style="font-size:32px;font-weight:800;font-family:'Space Grotesk',sans-serif;margin-bottom:20px;">0 TOTAL PTS</div>
         <button onclick="location.reload()" class="btn btn-primary">PLAY AGAIN</button>
       </div>
     </main>
+
   </div>
 
-  <!-- Judging Overlay -->
-  <div id="judgeModal" class="overlay-modal">
+  <!-- Judging Wait Overlay -->
+  <div id="judgeModal" class="modal-overlay">
     <div class="glass-card" style="text-align:center;max-width:320px;">
       <h2 style="color:var(--gold);font-size:18px;margin-bottom:6px;">THE JUDGEMENT BEGINS...</h2>
-      <p style="font-size:12px;color:var(--muted);">Analyzing creativity, logic & ground execution...</p>
+      <p style="font-size:13px;color:var(--muted);">Comparing creativity, logic & street execution...</p>
     </div>
   </div>
 
@@ -289,35 +353,40 @@
       {
         cat: "City Crisis",
         title: "City Plastic Waste Avalanche",
-        prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Municipal budget zero hai. Ek aisa jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
-        chips: ["Free Chai on 10 Cups", "WhatsApp Waste Photo Bot", "School Eco-Star Points", "Deposit Refund Scheme"]
+        prompt: "Aapke shahar mein roz 200 ton single-use plastic nikalta hai. Municipal budget zero hai. Ek aisa practical jugaad system banao jisse log kachra road par phenkne ke bajay khud jama karein!",
+        chips: ["Free Chai on 10 Bags", "WhatsApp Bot with Photo Coins", "School Eco-Star Points", "Deposit Refund Scheme"]
       },
       {
         cat: "Education Hack",
-        title: "Zero-Internet Rural Learning",
-        prompt: "Gaaon mein bijli bar-bar jaati hai aur mobile network nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka interactive learning ecosystem banao.",
-        chips: ["Solar Community Radio Quiz", "Senior-Student Mentorship", "Memory Card Rotation Hub", "Audio Story Cassettes"]
+        title: "Zero-Internet Rural Learning Hub",
+        prompt: "Door ke gaaon mein bijli bar-bar jaati hai aur mobile network nahi hai. 10-16 saal ke bachhon ke liye bina high-bandwidth devices ka interactive learning ecosystem banao.",
+        chips: ["Solar Community Radio Quiz", "Senior-Student Mentorship", "Memory Card Rotation Library", "Audio Story Cassettes"]
       },
       {
         cat: "Hostel Emergency",
         title: "Hostel Water & Power Crunch",
-        prompt: "Hostel mein 40% paani ki killat hai aur log fans chhod dete hain. Bina kisi fine ke students ko gamify karke wastage roko!",
-        chips: ["Floor vs Floor Biryani Cup", "4-Minute Shower Hourglass", "Student Ninja Squad", "Clean Floor Extra Wifi"]
+        prompt: "Hostel mein 40% paani ki killat hai aur students cooler/fans khule chhod dete hain. Bina kisi fine ya dande ke students ko gamify karke wastage roko!",
+        chips: ["Floor vs Floor Biryani Cup", "4-Minute Shower Hourglass", "Student Ninja Patrol", "Clean Floor Extra Wi-Fi Bandwidth"]
       }
     ];
 
-    // State
-    let myId = localStorage.getItem('prabal_mr_id') || ('p_' + Math.random().toString(36).substr(2,6));
-    localStorage.setItem('prabal_mr_id', myId);
-    let myName = localStorage.getItem('prabal_mr_name') || '';
+    // State & Persistent Identifiers
+    let myId = localStorage.getItem('pmr1_pid') || ('p_' + Math.random().toString(36).substr(2, 6));
+    localStorage.setItem('pmr1_pid', myId);
+    let myName = localStorage.getItem('pmr1_name') || '';
 
-    let client = null;
-    let roomCode = '';
     let isHost = false;
+    let roomCode = '';
+    let roomEventSource = null;
+    let radarEventSource = null;
+    let inboxEventSource = null;
+    let pendingInvite = null;
+
+    let onlinePlayers = new Map(); // id -> { name, lastSeen }
     let roomState = { code: '', hostId: '', players: [], round: 0, totRound: 3, subs: {}, time: 180 };
     let currentBlocks = [
-      { type: "Masterstroke", text: "" },
-      { type: "Ground Action", text: "" },
+      { type: "Masterstroke Idea", text: "" },
+      { type: "Ground Execution", text: "" },
       { type: "Zero-Budget Hack", text: "" }
     ];
     let timerInt = null;
@@ -332,158 +401,24 @@
     }
 
     function switchScreen(el) {
-      ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'].forEach(id => $(id).classList.remove('active'));$('judgeModal').classList.remove('active');
+      ['authScreen', 'lobbyScreen', 'gameScreen', 'resultsScreen', 'gameOverScreen'].forEach(id => $(id).classList.remove('active'));
+      $('judgeModal').classList.remove('active');
       if (el) el.classList.add('active');
     }
 
-    function initName() {
-      if (!myName) {
-        let n = prompt("Apna Codename / Username likhein:", "");
-        myName = (n && n.trim()) ? n.trim().substring(0, 14) : ('Agent_' + Math.floor(100 + Math.random()*900));
-        localStorage.setItem('prabal_mr_name', myName);
+    // Name Sync
+    function syncName() {
+      const inputVal = $('usernameInput').value.trim();
+      if (inputVal) {
+        myName = inputVal.substring(0, 15);
+      } else if (!myName) {
+        myName = 'Agent_' + Math.floor(100 + Math.random() * 900);
       }
+      localStorage.setItem('pmr1_name', myName);
+      $('usernameInput').value = myName;
       $('navUsername').innerText = myName;
     }
-    function editName() {
-      let n = prompt("Naya Codename likhein:", myName);
-      if (n && n.trim()) {
-        myName = n.trim().substring(0, 14);
-        localStorage.setItem('prabal_mr_name', myName);
-        $('navUsername').innerText = myName;
-      }
-    }
 
-    // Connect to Room MQTT Topic
-    function connectRoom(code, onDone) {
-      roomCode = code.toUpperCase().replace('MR-', '').trim();
-      const topic = 'prabal_mr1_' + roomCode;
-
-      // EMQX Reliable WebSocket
-      client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-        clientId: 'p_' + myId + '_' + Math.random().toString(36).substr(2,4),
-        clean: true,
-        connectTimeout: 8000
-      });
-
-      client.on('connect', () => {
-        client.subscribe(topic, () => {
-          if (onDone) onDone();
-        });
-      });
-
-      client.on('message', (t, payload) => {
-        try {
-          const msg = JSON.parse(payload.toString());
-          if (isHost) handleHost(msg);
-          else handleClient(msg);
-        } catch (e) {}
-      });
-
-      client.on('error', () => {
-        alert('Connection error. Internet check karein!');
-      });
-    }
-
-    function send(data) {
-      if (client && client.connected) {
-        data.senderId = myId;
-        client.publish('prabal_mr1_' + roomCode, JSON.stringify(data));
-      }
-    }
-
-    // 1. CREATE ROOM (HOST)
-    $('createRoomBtn').onclick = () => {
-      initName();
-      isHost = true;
-      const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
-      
-      $('createRoomBtn').innerText = 'Room ban raha hai...';
-      connectRoom(rand, () => {
-        roomState.code = rand;
-        roomState.hostId = myId;
-        roomState.players = [{ id: myId, name: myName, ready: true, score: 0 }];
-        updateLobby();
-        switchScreen($('lobbyScreen'));
-      });
-    };
-
-    // 2. JOIN ROOM (CLIENT)
-    $('joinRoomBtn').onclick = () => {
-      initName();
-      let code = $('joinCodeInput').value.trim();
-      if (!code) return alert('Pehle 4-digit Room Code likhein!');
-      isHost = false;
-
-      $('joinRoomBtn').innerText = 'Connect ho raha hai...';
-      connectRoom(code, () => {
-        // Send join request repeatedly until host syncs
-        send({ type: 'JOIN', player: { id: myId, name: myName } });
-      });
-    };
-
-    // Host Message Handling
-    function handleHost(msg) {
-      if (msg.senderId === myId) return;
-
-      if (msg.type === 'JOIN') {
-        let p = roomState.players.find(x => x.id === msg.player.id);
-        if (!p) {
-          roomState.players.push({ id: msg.player.id, name: msg.player.name, ready: false, score: 0 });
-        }
-        send({ type: 'SYNC', state: roomState });
-        updateLobby();
-      }
-
-      if (msg.type === 'READY') {
-        let p = roomState.players.find(x => x.id === msg.playerId);
-        if (p) p.ready = !p.ready;
-        send({ type: 'SYNC', state: roomState });
-        updateLobby();
-      }
-
-      if (msg.type === 'SUBMIT') {
-        roomState.subs[msg.playerId] = { id: msg.playerId, name: msg.name, blocks: msg.blocks };
-        const done = Object.keys(roomState.subs).length;
-        send({ type: 'SUB_COUNT', done, total: roomState.players.length });
-        $('doneCount').innerText = `${done}/${roomState.players.length} Done`;
-
-        if (done >= roomState.players.length) {
-          clearInterval(timerInt);
-          judgeMission();
-        }
-      }
-    }
-
-    // Client Message Handling
-    function handleClient(msg) {
-      if (msg.type === 'SYNC') {
-        roomState = msg.state;
-        updateLobby();
-        switchScreen($('lobbyScreen'));
-      }
-      if (msg.type === 'START') {
-        roomState = msg.state;
-        startUI(msg.ch, msg.round);
-      }
-      if (msg.type === 'TICK') {
-        updateTimer(msg.t);
-      }
-      if (msg.type === 'SUB_COUNT') {
-        $('doneCount').innerText = `${msg.done}/${msg.total} Done`;
-      }
-      if (msg.type === 'JUDGING') {
-        $('judgeModal').classList.add('active');
-      }
-      if (msg.type === 'RESULTS') {
-        $('judgeModal').classList.remove('active');
-        showResults(msg.results, msg.round, msg.isFinal);
-      }
-      if (msg.type === 'OVER') {
-        showGameOver(msg.winner);
-      }
-    }
-
-    function updateLobby() {
-      $('roomCodeDisplay').innerText = roomState.code;
-      $('playersList').innerHTML = roomState.players.map(p => `
-     
+    $('usernameInput').addEventListener('input', () => {
+      myName = $('usernameInput').value.trim() || 'Agent';
+      localStorage.setItem('pmr1_nam
